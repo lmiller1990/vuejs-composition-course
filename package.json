@@ -1,0 +1,18 @@
+{
+  "name": "webpack-boilerplate",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "devDependencies": {
+    "webpack": "^4.42.1",
+    "webpack-cli": "^3.3.11"
+  },
+  "dependencies": {
+    "@vue/compiler-sfc": "^3.0.0-alpha.11",
+    "ts-loader": "^6.2.2",
+    "typescript": "^3.8.3",
+    "vue": "^3.0.0-alpha.11",
+    "vue-loader": "^16.0.0-alpha.3",
+    "webpack-dev-server": "^3.10.3"
+  }
+}
