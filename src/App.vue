@@ -5,7 +5,5 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
 
-export default defineComponent({
-  template: `<div>adf</div>`
-})
+export default defineComponent({})
 </script>
