@@ -1,6 +1,8 @@
-Start with nothing but:
+In this article we build a webpack configuration from scratch for developing Vue.js 3 apps. Specifically, we will support `.vue` files, TypeScript, and hot reload.
 
-`main.ts`
+We start with an almost empty project, with the following files:
+
+`src/main.ts`
 
 ```ts
 import { createApp } from 'vue'
@@ -10,7 +12,7 @@ import App from './App.vue'
 createApp(App).mount('#app')
 ```
 
-`App.vue`
+`src/App.vue`
 
 ```vue
 <template>
@@ -26,7 +28,7 @@ export default defineComponent({
 </script>
 ```
 
-And `index.html`:
+And `index.html`, at the root level:
 
 ```html
 <!DOCTYPE html>
@@ -59,7 +61,6 @@ module.exports = {
 
 This is a minimal webpack config. We specify the entry file, and the output. `path.resolve` is a cross platform way to specify a directory. If we run `yarn webpack --mode="development" we get:
 
-
 ```sh
 ERROR in ./src/App.vue 1:0
 Module parse failed: Unexpected token (1:0)
@@ -69,6 +70,8 @@ You may need an appropriate loader to handle this file type, currently no loader
 | </template>
  @ ./src/main.ts 3:0-27 5:10-13
 ```
+
+## Installing Vue Loader
 
 Of course, it has no idea how to read a `.vue` file. Luckily we can use `vue-loader` for this. The latest version is 16, which supports Vue 3. Let's install it, and `vue` and the sfc-compiler, with `yarn add vue-loader@16.0.0-alpha.3 vue@3.0.0-alpha.11 @vue/compiler-sfc@3.0.0-alpha.11`. Next, we configure webpack to us the loader:
 
