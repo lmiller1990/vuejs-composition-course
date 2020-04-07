@@ -415,6 +415,11 @@
     "@types/yargs" "^15.0.0"
     chalk "^3.0.0"
 
+"@lmiller1990/vue-test-utils-next@^0.0.8":
+  version "0.0.8"
+  resolved "https://registry.yarnpkg.com/@lmiller1990/vue-test-utils-next/-/vue-test-utils-next-0.0.8.tgz#7689a916a924958001df15f22489c452e942c97c"
+  integrity sha512-hkJrR+/Ce5I7fojOlFGPmHXJq+xf3GMEMnOdi2xGpv3zn1HoWGj6Sn/PyoZzNLf0y1sTouLgV4wXQlAauoEpLw==
+
 "@sinonjs/commons@^1.7.0":
   version "1.7.1"
   resolved "https://registry.yarnpkg.com/@sinonjs/commons/-/commons-1.7.1.tgz#da5fd19a5f71177a53778073978873964f49acf1"

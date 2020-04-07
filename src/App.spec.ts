@@ -1,10 +1,10 @@
 import { createApp } from 'vue'
+import { mount } from '@lmiller1990/vue-test-utils-next'
 
 import App from './App.vue'
 
 test('App', () => {
-  const el = document.createElement('div')
-  document.body.appendChild(el)
-  createApp(App).mount(el)
-  console.log(document.body.outerHTML)
+  const wrapper = mount(App)
+
+  expect(wrapper.html()).toContain('Vue app')
 })
