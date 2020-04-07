@@ -10,16 +10,17 @@
     "@vue/compiler-sfc": "^3.0.0-alpha.11",
     "babel-jest": "^25.2.6",
     "jest": "^25.2.7",
-    "vue-jest": "^5.0.0-alpha.0",
-    "vue-loader": "^16.0.0-alpha.3",
     "ts-jest": "^25.3.1",
     "ts-loader": "^6.2.2",
-    "typescript": "^3.8.3,"
+    "typescript": "^3.8.3",
+    "vue-jest": "^5.0.0-alpha.0",
+    "vue-loader": "^16.0.0-alpha.3",
     "webpack": "^4.42.1",
-    "webpack-cli": "^3.3.11"
+    "webpack-cli": "^3.3.11",
     "webpack-dev-server": "^3.10.3"
   },
   "dependencies": {
+    "@babel/preset-env": "^7.9.0",
     "vue": "^3.0.0-alpha.11"
   }
 }
