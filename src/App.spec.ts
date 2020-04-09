@@ -1,5 +1,5 @@
 import { createApp } from 'vue'
-import { mount } from '@lmiller1990/vue-test-utils-next'
+import { mount } from '@vue/test-utils'
 
 import App from './App.vue'
 
