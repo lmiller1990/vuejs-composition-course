@@ -13,7 +13,7 @@ Test that the three tabs are rendered with data-test
 
 Use ref and setActiveTab to update the active tab
 
-1.4 Testing the Active Tab Feature
+1.4 Synchronous Tests, Asynchronous Vue
 
 Test the active tab feature, and delete the previous tests
 
