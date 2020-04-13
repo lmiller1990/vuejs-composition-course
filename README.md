@@ -21,7 +21,7 @@ Test the active tab feature, and delete the previous tests
 
 Create mocks.ts and the Post interface. Write a failing test.
 
-1.6 Decoupling Business Logic from UI Logic
+1.6 Filtering the Posts with computed
 
 Write a utility method to filter the post, apply it with computed.
 
