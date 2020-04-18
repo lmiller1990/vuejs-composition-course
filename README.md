@@ -1,5 +1,2 @@
-Demo repo for vue-test-utils-next + TS + vue-jest.
+Repository for my course on Vue.js 3, the Composition API, TypeScript and testing. https://vuejs-course.com/
 
-1. `yarn install`
-2. `yarn test` to run tests.
-3. `yarn webpack-dev-server` for development mode.
