@@ -21,15 +21,18 @@ import TimelinePost from './TimelinePost.vue'
 import { Period, Post } from './types'
 import { todayPost, thisWeek, thisMonth } from './mocks'
 
+const delay = (ms: number) => new Promise(res => setTimeout(res, ms))
+
 export default defineComponent({
   components: {
     TimelinePost
   },
 
-  setup() {
+  async setup() {
     const periods: Period[] = ['today', 'this week', 'this month']
     const selectedPeriod = ref<Period>('today')
 
+    await delay(2000)
     const posts = computed(() => [todayPost, thisWeek, thisMonth].filter(post => {
         if (
           selectedPeriod.value === 'today' &&
