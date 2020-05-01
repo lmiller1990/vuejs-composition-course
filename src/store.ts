@@ -12,9 +12,16 @@ interface State {
   posts: PostsState
 }
 
+import { todayPost, thisWeek, thisMonth } from './mocks'
+
 const initialPostsState = (): PostsState => ({
-  all: {},
-  ids: [],
+  all: {
+    [todayPost.id]: todayPost,
+    [thisMonth.id]: thisMonth,
+  },
+  ids: [
+    todayPost.id.toString(), thisMonth.id.toString()
+  ],
   loaded: false
 })
 
@@ -52,3 +59,5 @@ class Store {
 
 const store = new Store(initialState())
 store.getState()
+
+export const useStore = () => store
