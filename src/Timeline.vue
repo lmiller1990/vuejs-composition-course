@@ -21,8 +21,6 @@ import TimelinePost from './TimelinePost.vue'
 import { Period, Post } from './types'
 import { useStore } from './store'
 
-const delay = (ms: number) => new Promise(res => setTimeout(res, ms))
-
 export default defineComponent({
   components: {
     TimelinePost
@@ -33,12 +31,15 @@ export default defineComponent({
     const selectedPeriod = ref<Period>('today')
 
     const store = useStore()
+    if (!store.getState().posts.loaded) {
+      await store.fetchPosts()
+    }
+
     const allPosts = store.getState().posts.ids.reduce<Post[]>((acc, id) => {
       const post = store.getState().posts.all[id]
       return acc.concat(post)
     }, [])
 
-    await delay(2000)
     const posts = computed(() => allPosts.filter(post => {
         if (
           selectedPeriod.value === 'today' &&

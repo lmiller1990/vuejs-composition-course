@@ -16,11 +16,8 @@ import { todayPost, thisWeek, thisMonth } from './mocks'
 
 const initialPostsState = (): PostsState => ({
   all: {
-    [todayPost.id]: todayPost,
-    [thisMonth.id]: thisMonth,
   },
   ids: [
-    todayPost.id.toString(), thisMonth.id.toString()
   ],
   loaded: false
 })
