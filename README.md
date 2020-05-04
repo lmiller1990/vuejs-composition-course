@@ -25,7 +25,7 @@ Create mocks.ts and the Post interface. Write a failing test.
 
 Write a utility method to filter the post, apply it with computed.
 
-1.7 Refactoring with Confidence 
+1.7 Refactoring with Confidence
 
 Creating a TimelineItem component, run the tests.
 
@@ -54,3 +54,25 @@ Use axios to fetch data and discuss axios.mock
 Use the store in the Timeline component. Mock out axios in `main.ts`
 
 2.6 Mocking modules with jest.mock
+
+====
+
+3.0 New Post link with Vue Router
+
+Create a new view for NewPost and link there from a Navbar component.
+
+3.1 Planning the PostWriter component
+
+Create PostWriter.vue, add the basic layout and explain how we will use ContentEditable. Set up a basic event and use `innerText.value` to update.
+
+3.2 Using `watch` to convert markdown to HTML. Preview real time.
+
+3.3 Syntax highlighting with highlight.js.
+
+Add syntax highlighting!
+
+3.4 Add the Post into the Store
+
+3.5 Some small improvements
+
+3.6 Testing PostWriter
