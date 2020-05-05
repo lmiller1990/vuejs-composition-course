@@ -14,9 +14,11 @@
 
     <div class="columns">
       <div class="column is-one-half">
-        <div contenteditable id="markdown" ref="contentEditable" />
+        <div contenteditable id="markdown" ref="contentEditable" @input="handleEdit" />
       </div>
-      <div class="column is-one-half"></div>
+      <div class="column is-one-half">
+       {{ markdown }}
+      </div>
     </div>
   </div>
 </template>
@@ -38,17 +40,22 @@ export default defineComponent({
   setup(props) {
     const title = ref(props.post.title)
     const contentEditable = ref<null | HTMLDivElement>(null)
+    const markdown = ref(props.post.markdown)
 
-    console.log(contentEditable.value)
+
+    const handleEdit = () => {
+      markdown.value = contentEditable.value.innerText
+    }
 
     onMounted(() => {
-      console.log(contentEditable.value)
-      // ...
+      contentEditable.value.innerText = markdown.value
     })
 
     return {
       title,
-      contentEditable
+      contentEditable,
+      handleEdit,
+      markdown
     }
   }
 })
