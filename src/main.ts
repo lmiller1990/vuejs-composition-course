@@ -1,6 +1,7 @@
 import { createApp } from 'vue'
 import axios from 'axios'
 import * as mockData from './mocks'
+import 'highlight.js/styles/solarized-dark.css'
 
 import { router } from './router'
 
