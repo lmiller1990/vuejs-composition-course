@@ -76,3 +76,15 @@ Add syntax highlighting!
 3.5 Some small improvements
 
 3.6 Testing PostWriter
+
+-------
+
+4.0 Add a Post to the Store
+
+Add a post, write a test, add the new post
+
+4.1 Create a useModal hook and Component
+
+4.2 Teleport a the NewUserForm to the Modal
+
+4.3 Creating a Reusable Input
