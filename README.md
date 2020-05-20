@@ -88,3 +88,9 @@ Add a post, write a test, add the new post
 4.2 Teleport a the NewUserForm to the Modal
 
 4.3 Creating a Reusable Input
+
+4.4 Build the NewUserForm
+
+4.5 Defining Users and the User Store
+
+4.6 Creating a New User
