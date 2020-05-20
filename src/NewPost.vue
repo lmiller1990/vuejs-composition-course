@@ -27,9 +27,10 @@ export default defineComponent({
       authorId: 0
     }
 
+    const store = useStore()
+    const router = useRouter()
+
     const save = async (post: Post) => {
-      const store = useStore()
-      const router = useRouter()
 
       await store.createPost(post)
       router.push('/')
