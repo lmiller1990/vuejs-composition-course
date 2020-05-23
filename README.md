@@ -83,11 +83,9 @@ Add syntax highlighting!
 
 Add a post, write a test, add the new post
 
-4.1 Create a useModal hook and Component
+4.1 Create a useModal composable with teleport
 
-4.2 Teleport a the NewUserForm to the Modal
-
-4.3 Creating a Reusable Input
+4.2 Creating a Reusable Input
 
 4.4 Build the NewUserForm
 
