@@ -31,7 +31,6 @@ export default defineComponent({
     const router = useRouter()
 
     const save = async (post: Post) => {
-
       await store.createPost(post)
       router.push('/')
     }
