@@ -31,7 +31,7 @@ export function length(options: MinMaxOptions): Length {
 
 type Validator = Require | Length
 
-interface Status {
+export interface Status {
   valid: boolean
   message?: string
 }

@@ -8,7 +8,6 @@
   </div>
 
   <section class="section">
-    <FormInput type="text" name="Username" v-model="username" error="This field is required" />
     <div class="container">
       <NavBar />
       <router-view />
@@ -17,6 +16,7 @@
 </template>
 
 <script lang="ts">
+import { required, length, validate, Status } from './validators'
 import { defineComponent, computed, ref } from 'vue'
 import NavBar from './NavBar.vue'
 import FormInput from './FormInput.vue'
@@ -32,12 +32,16 @@ export default defineComponent({
   setup () {
     const modal = useModal()
     const username = ref('username')
+    const usernameStatus = computed<Status>(() => {
+      return validate(username.value, [ required(), length({ min: 5, max: 10 })])
+    })
 
     const style = computed(() => ({
       display: modal.visible.value ? 'block' : 'none'
     }))
 
     return {
+      usernameStatus,
       style,
       modal,
       username,
