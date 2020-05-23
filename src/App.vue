@@ -8,6 +8,7 @@
   </div>
 
   <section class="section">
+    <FormInput type="text" name="Username" v-model="username" error="This field is required" />
     <div class="container">
       <NavBar />
       <router-view />
@@ -16,18 +17,21 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, computed } from 'vue'
+import { defineComponent, computed, ref } from 'vue'
 import NavBar from './NavBar.vue'
+import FormInput from './FormInput.vue'
 import { useModal } from './useModal'
 
 export default defineComponent({
   name: 'App',
   components: {
-    NavBar
+    NavBar,
+    FormInput
   },
 
   setup () {
     const modal = useModal()
+    const username = ref('username')
 
     const style = computed(() => ({
       display: modal.visible.value ? 'block' : 'none'
@@ -35,7 +39,8 @@ export default defineComponent({
 
     return {
       style,
-      modal
+      modal,
+      username,
     }
   }
 })
