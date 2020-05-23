@@ -1,4 +1,4 @@
-import { reactive, readonly } from "vue"
+import { reactive, readonly, provide, inject } from "vue"
 import axios from 'axios'
 import { Post, User } from "./types"
 
@@ -64,4 +64,15 @@ class Store {
 const store = new Store(initialState())
 store.getState()
 
-export const useStore = () => store
+export const provideStore = () => {
+  provide('store', store)
+}
+
+export const createStore = () => {
+  return new Store(initialState())
+}
+
+export const useStore = (): Store => {
+  const store = inject<Store>('store')
+  return store
+}
