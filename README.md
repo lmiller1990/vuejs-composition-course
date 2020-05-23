@@ -92,3 +92,7 @@ Add a post, write a test, add the new post
 4.5 Defining Users and the User Store
 
 4.6 Creating a New User
+
+1. Create a post (NewPost.vue)
+2. Validation, FormInput, Signup
+3. useModal, Navbar
