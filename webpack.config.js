@@ -16,17 +16,28 @@ module.exports = {
       },
       {
         test: /\.ts$/,
-        loader: 'ts-loader', 
+        loader: 'ts-loader',
         options: {
           appendTsSuffixTo: [/\.vue/]
         }
+      },
+      {
+        test: /\.css$/i,
+        use: [
+          'style-loader',
+          'css-loader',
+        ]
       }
     ]
+  },
+  resolve: {
+    extensions: [ '.tsx', '.ts', '.js' ],
   },
   plugins: [
     new VueLoaderPlugin()
   ],
   devServer: {
-    overlay: true
+    overlay: true,
+    historyApiFallback: true
   }
 }
