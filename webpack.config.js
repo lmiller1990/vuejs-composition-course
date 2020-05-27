@@ -16,10 +16,17 @@ module.exports = {
       },
       {
         test: /\.ts$/,
-        loader: 'ts-loader', 
+        loader: 'ts-loader',
         options: {
           appendTsSuffixTo: [/\.vue/]
         }
+      },
+      {
+        test: /\.css$/i,
+        use: [
+          'style-loader',
+          'css-loader',
+        ]
       }
     ]
   },
@@ -30,6 +37,7 @@ module.exports = {
     new VueLoaderPlugin()
   ],
   devServer: {
-    overlay: true
+    overlay: true,
+    historyApiFallback: true
   }
 }
