@@ -7,10 +7,15 @@ Authentication -> Can you access the system?
 Authorization -> What you can do once you access the system
 
 - Front-end only
-  - Change the Navbar depending when authorized
-  - Router guards for `/posts/new`
-  - Authorization - only allow editing your own posts
+  - Change the Navbar depending when authenticated
+  - Router guards:
+    - /posts/new (authenticated users)
+    - /posts/4/edit (authorized users)
 
 - Authentication/Authorization will depend on your application and use case
 - BIG and IMPORTANT topic. Topic for a future course?
-- I'll mention some strategies
+  - Regular bug -> bad user experience
+  - Authentication/Authorization bug -> potentially a crime
+  - I'll mention some strategies. JWT (JSON Web Token)
+
+- Improving the `useModal`, dynamic components, Reactivity optimizations
