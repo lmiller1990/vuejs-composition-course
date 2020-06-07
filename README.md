@@ -93,6 +93,19 @@ Add a post, write a test, add the new post
 
 4.6 Creating a New User
 
+4.7, 4.8...
+
 1. Create a post (NewPost.vue)
 2. Validation, FormInput, Signup
 3. useModal, Navbar
+
+
+Section 5: Considering Authentication and Authorization
+
+5.1 Intro authen and author. Discuss what we need - store structure, currentUserId.
+
+5.2 Updating the Navbar State. Change the state depending on the authentication.
+
+5.3 Improving useModal.
+
+5.4 Sign-out.
