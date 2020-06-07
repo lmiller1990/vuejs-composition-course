@@ -18,4 +18,6 @@ Authorization -> What you can do once you access the system
   - Authentication/Authorization bug -> potentially a crime
   - I'll mention some strategies. JWT (JSON Web Token)
 
-- Improving the `useModal`, dynamic components, Reactivity optimizations
+- improving the `useModal` to support different modals
+- dynamic components
+- reactivity optimizations
