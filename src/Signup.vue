@@ -15,7 +15,7 @@ import { useStore } from './store'
 import { useModal } from './useModal'
 
 export default defineComponent({
-  name: 'App',
+  name: 'Signup',
   components: {
     FormInput
   },

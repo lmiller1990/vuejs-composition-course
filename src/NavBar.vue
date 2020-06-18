@@ -18,7 +18,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, computed } from 'vue'
+import { defineComponent, computed, reactive, markRaw } from 'vue'
 import { useModal } from './useModal'
 import Signup from './Signup.vue'
 import { useStore } from './store'
@@ -30,10 +30,11 @@ export default defineComponent({
 
     const authenticated = computed(() => store.getState().authors.currentUserId)
     const signup = () => {
-      modal.component = Signup
+      modal.component = markRaw(Signup)
       modal.showModal()
     }
     const signin = () => {
+      // modal.component = markRaw(Signin)
       modal.showModal()
     }
 
