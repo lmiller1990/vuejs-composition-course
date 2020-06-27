@@ -18,17 +18,17 @@ export default defineComponent({
   },
 
   setup() {
+    const store = useStore()
+    const router = useRouter()
+
     const post: Post = {
       id: -1,
       title: 'New Post',
       markdown: '## New Post\nEnter your post here...',
       html: '',
       created: moment(),
-      authorId: 0
+      authorId: parseInt(store.getState().authors.currentUserId!, 10)
     }
-
-    const store = useStore()
-    const router = useRouter()
 
     const save = async (post: Post) => {
       await store.createPost(post)
