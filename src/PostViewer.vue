@@ -1,4 +1,7 @@
 <template>
+  <router-link :to="to" class="button is-rounded is-link">
+    <i class="fas fa-edit" />
+  </router-link>
   <div>Post title is: {{ post.title }}</div>
 </template>
 
@@ -20,7 +23,8 @@ export default defineComponent({
     const post = store.getState().posts.all[id]
 
     return {
-      post
+      post,
+      to: `/posts/${post.id}/edit`
     }
   }
 })
