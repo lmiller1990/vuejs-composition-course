@@ -38,6 +38,6 @@
     "marked": "^1.0.0",
     "moment": "^2.24.0",
     "vue": "^3.0.0-beta.4",
-    "vue-router": "^4.0.0-alpha.9"
+    "vue-router": "^4.0.0-alpha.13"
   }
 }

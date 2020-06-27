@@ -7121,10 +7121,10 @@ vue-loader@^16.0.0-alpha.3:
     merge-source-map "^1.1.0"
     source-map "^0.6.1"
 
-vue-router@^4.0.0-alpha.9:
-  version "4.0.0-alpha.9"
-  resolved "https://registry.yarnpkg.com/vue-router/-/vue-router-4.0.0-alpha.9.tgz#17000af2d99e3fb2d7f640734c6dd103f2a90efa"
-  integrity sha512-OUbbjRmAGf6aA8VoSF+jrZgg0Ozk+Quqtsec/uSdEX43R6v7MEmKgR+M66doAZkRUfbm7lotxnObwV55/CjNRQ==
+vue-router@^4.0.0-alpha.13:
+  version "4.0.0-alpha.13"
+  resolved "https://registry.yarnpkg.com/vue-router/-/vue-router-4.0.0-alpha.13.tgz#f406150172f77e2f60f4ff73f644a156df2e0248"
+  integrity sha512-yTcpRjjcelF14BzSX6uFlHZZAxMg30CQv7hoFDWvSWbUudaAaxMW0OkIgd771SXMLLXDbjfRi4Y4WfSAW4UJ/Q==
 
 vue@^3.0.0-beta.4:
   version "3.0.0-beta.4"
