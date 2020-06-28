@@ -1,5 +1,5 @@
 <template>
-  <router-link v-if="canEdit" :to="to" class="button is-rounded is-link">
+  <router-link data-test="can-edit" v-if="canEdit" :to="to" class="button is-rounded is-link">
     <i class="fas fa-edit" />
   </router-link>
   <div>Post title is: {{ post.title }}</div>
