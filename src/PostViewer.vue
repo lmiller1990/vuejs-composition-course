@@ -1,5 +1,5 @@
 <template>
-  <router-link :to="to" class="button is-rounded is-link">
+  <router-link v-if="canEdit" :to="to" class="button is-rounded is-link">
     <i class="fas fa-edit" />
   </router-link>
   <div>Post title is: {{ post.title }}</div>
@@ -21,10 +21,12 @@ export default defineComponent({
     }
 
     const post = store.getState().posts.all[id]
+    const canEdit = post.authorId === parseInt(store.getState().authors.currentUserId!, 10)
 
     return {
       post,
-      to: `/posts/${post.id}/edit`
+      to: `/posts/${post.id}/edit`,
+      canEdit
     }
   }
 })
