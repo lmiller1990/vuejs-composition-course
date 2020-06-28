@@ -37,12 +37,12 @@ const initialPostsState = (): PostsState => ({
   loaded: false
 })
 
-const initialState = (): State => ({
+export const initialState = (): State => ({
   authors: initialAuthorsState(),
   posts: initialPostsState()
 })
 
-class Store {
+export class Store {
   protected state: State
 
   constructor(initialState: State) {
@@ -88,8 +88,8 @@ export const provideStore = () => {
   provide('store', store)
 }
 
-export const createStore = () => {
-  return new Store(initialState())
+export const createStore = (state: State = initialState()) => {
+  return new Store(state)
 }
 
 export const useStore = (): Store => {

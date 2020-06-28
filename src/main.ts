@@ -3,8 +3,9 @@ import axios from 'axios'
 import * as mockData from './mocks'
 import 'highlight.js/styles/solarized-dark.css'
 import random from 'lodash/random'
+import { store } from './store'
 
-import { router } from './router'
+import { makeRouter, createBeforeEach } from './router'
 
 const delay = (ms: number) => new Promise(res => setTimeout(res, ms))
 // @ts-ignore
@@ -40,6 +41,8 @@ axios.post = async (url: string, payload: Post) => {
 import App from './App.vue'
 
 const app = createApp(App)
+const router = makeRouter()
+router.beforeEach(createBeforeEach(store))
 app.use(router)
 
 app.mount('#app')
