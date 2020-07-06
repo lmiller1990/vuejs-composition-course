@@ -16,6 +16,11 @@ const createHome = () => {
     global: {
       provide: {
         store: createStore()
+      },
+      components: {
+        RouterLink: {
+          template: '<div />'
+        }
       }
     }
   })
