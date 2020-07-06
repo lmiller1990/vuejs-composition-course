@@ -15,7 +15,7 @@ interface AuthorsState {
   currentUserId?: string
 }
 
-interface State {
+export interface State {
   authors: AuthorsState
   posts: PostsState
 }
