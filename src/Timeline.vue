@@ -1,4 +1,9 @@
 <template>
+  <div class="message is-primary is-marginless">
+    <div class="message-header">
+      <p>Posts</p>
+    </div>
+  </div>
   <nav class="is-primary panel">
     <p class="panel-tabs">
       <a v-for="period in periods" :key="period" data-test="period"
@@ -8,7 +13,6 @@
         {{ period }}
       </a>
     </p>
-
     <TimelinePost v-for="post in posts" :key="post.id" :post="post" />
   </nav>
 </template>
