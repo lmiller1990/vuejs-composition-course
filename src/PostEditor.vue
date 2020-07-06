@@ -1,13 +1,19 @@
 <template>
-  <div>Post Editor</div>
+  <PostWriter :post="post" @save="save" />
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue";
 import { useRoute, useRouter } from "vue-router";
+import { Post } from './types'
+import PostWriter from './PostWriter.vue'
 import { useStore } from "./store";
 
 export default defineComponent({
+  components: {
+    PostWriter
+  },
+
   async setup() {
     const route = useRoute()
     const router = useRouter()
@@ -25,8 +31,14 @@ export default defineComponent({
       router.push('/')
     }
 
+    const save = async (post: Post) => {
+      await store.updatePost(post)
+      router.push('/')
+    }
+
     return {
       post,
+      save,
       to: `/posts/${post.id}/edit`
     }
   }
