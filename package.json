@@ -5,7 +5,8 @@
   "license": "MIT",
   "scripts": {
     "test": "yarn jest",
-    "dev": "yarn webpack-dev-server"
+    "dev": "yarn webpack-dev-server",
+    "build": "yarn webpack --mode production"
   },
   "devDependencies": {
     "@babel/node": "^7.8.7",
@@ -18,6 +19,7 @@
     "@vue/compiler-sfc": "^3.0.0-beta.4",
     "@vue/test-utils": "^2.0.0-alpha.6",
     "babel-jest": "^25.2.6",
+    "clean-webpack-plugin": "^3.0.0",
     "css-loader": "^3.5.3",
     "flush-promises": "^1.0.2",
     "jest": "^25.2.7",
