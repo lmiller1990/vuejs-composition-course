@@ -26,14 +26,12 @@ const initialAuthorsState = (): AuthorsState => ({
   all: {},
   ids: [],
   loaded: false,
-  currentUserId: undefined
+  currentUserId: '1'
 })
 
 const initialPostsState = (): PostsState => ({
-  all: {
-  },
-  ids: [
-  ],
+  all: {},
+  ids: [],
   loaded: false
 })
 
@@ -59,6 +57,14 @@ class Store {
     this.state.authors.ids.push(response.data.id.toString())
     this.state.authors.currentUserId = response.data.id.toString()
     console.log(this.state)
+  }
+
+  async signin(user: User) {
+    this.state.authors.currentUserId = user.id.toString()
+  }
+
+  async signOut() {
+    this.state.authors.currentUserId = null
   }
 
   async createPost(post: Post) {

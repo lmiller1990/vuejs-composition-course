@@ -12,7 +12,14 @@ axios.get = async (url: string) => {
   if (url === '/posts') {
     await delay(1000)
     return Promise.resolve({
-      data: [mockData.thisWeek, mockData.todayPost, mockData.thisMonth]
+      data: [
+        mockData.thisWeek,
+        mockData.todayPost,
+        mockData.thisMonth,
+        mockData.rollup,
+        mockData.asyncComponents,
+        mockData.testing,
+      ]
     })
   }
 }

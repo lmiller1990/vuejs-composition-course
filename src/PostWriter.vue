@@ -6,7 +6,6 @@
           <div class="label">Post Title</div>
           <div class="control">
             <input v-model="title" type="text" class="input" data-test="post-title" />
-            {{ title }}
           </div>
         </div>
       </div>
@@ -93,3 +92,9 @@ export default defineComponent({
   }
 })
 </script>
+
+<style>
+#markdown {
+  white-space: pre-wrap;
+}
+</style>

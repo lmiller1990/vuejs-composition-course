@@ -5,7 +5,7 @@
       <router-link data-test="can-edit" v-if="canEdit" :to="to" class="button is-rounded is-link is-pulled-right">
         <i class="fas fa-edit" />
       </router-link>
-      <h1>Post title is: {{ post.title }}</h1>
+      <h1>{{ post.title }}</h1>
       <div v-html="post.html" />
     </div>
     <div class="column" />
@@ -13,7 +13,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
+import { defineComponent, computed } from "vue";
 import { useRoute } from "vue-router";
 import { useStore } from "./store";
 
@@ -28,7 +28,7 @@ export default defineComponent({
     }
 
     const post = store.getState().posts.all[id]
-    const canEdit = post.authorId === parseInt(store.getState().authors.currentUserId!, 10)
+    const canEdit = computed(() => post.authorId === parseInt(store.getState().authors.currentUserId!, 10))
 
     return {
       post,
@@ -38,3 +38,9 @@ export default defineComponent({
   }
 })
 </script>
+
+<style>
+.is-one-half {
+  max-width: 50%;
+}
+</style>

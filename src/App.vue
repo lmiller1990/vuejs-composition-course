@@ -9,6 +9,13 @@
 
   <section class="section">
     <div class="container">
+      <div class="notification is-info">
+        <p>
+          Learn to build this application with Vue.js 3, the Composition API, TypeScript, Vue Router 4 and Vue Test Utils!
+          <a href="https://vuejs-course.com/">Vue.js Course.com</a> 👈🏼
+        </p>
+        <p>$10 off with <u>VUEJS_COURSE_10_OFF</u> disount code at the checkout &nbsp;🎉</p>
+      </div>
       <NavBar />
       <router-view />
     </div>

@@ -1,0 +1,299 @@
+<div><p>In this article we will write a rollup config from scratch to compile a project written in TypeScript. Our goal will be three separate bundles:</p>
+<ul>
+<li>commonjs (extension <code>.cjs.js</code>, for use with node.js)</li>
+<li>es module (extension <code>.esm-bundle.js</code>, for use with bundlers like webpack)</li>
+<li>browser (extension <code>.browser.js</code>, for use in a browser)</li>
+</ul>
+<p>We also will be including type definitions for TypeScript users.</p>
+<h2 id="building-for-nodejs">Building for node.js</h2>
+<p>Let's get started! If you want to follow along, grab VTU next at this point in history and delete everything from the <code>rollup.config.js</code>. Add <code>export default {}</code> and run <code>yarn rollup -c rollup.config.js</code>. You will get this error:</p>
+<pre><code>Config file must export an options object,<span class="hljs-built_in"> or </span>an<span class="hljs-built_in"> array </span>of options objects</code></pre><p>We will start with a object, for a single bundle, and an array when we include more. The minimal config we need is an <code>input</code>, the file to read from, and an <code>output</code>, which is where our bundled code will be written. Add the following:</p>
+<pre><code class="language-js"><span class="hljs-builtin-name">export</span><span class="hljs-built_in"> default </span>{
+  input: <span class="hljs-string">'src/index.ts'</span>,
+  output: {
+    file: <span class="hljs-string">'vue-test-utils.cjs.js'</span>,
+    format: <span class="hljs-string">'cjs'</span>
+  }
+}</code></pre>
+<p>Running this again gives us:</p>
+<pre><code>[!] <span class="hljs-meta">Error</span>: Could <span class="hljs-meta">not</span> resolve <span class="hljs-string">'./mount'</span> <span class="hljs-meta">from</span> src/<span class="hljs-meta">index</span>.ts</code></pre><p>That's because rollup does not understand TS.</p>
+<h2 id="rollup-plugins">Rollup Plugins</h2>
+<p>Rollup is minimal by design and does everything via plugins. We will use <code>rollup-plugin-typescript2</code>. What hapened to <code>rollup-plugin-typescript2</code>? No idea! We also need <code>json</code> to load <code>dom-event-types</code>, which exports a json file by default. Update the config:</p>
+<pre><code>import ts <span class="hljs-keyword">from</span> <span class="hljs-string">'rollup-plugin-typescript2'</span>
+import json <span class="hljs-keyword">from</span> <span class="hljs-string">'@rollup/plugin-json'</span>
+
+<span class="hljs-builtin-name">export</span><span class="hljs-built_in"> default </span>{
+  input: <span class="hljs-string">'src/index.ts'</span>,
+  plugins: [
+    ts(),
+    json()
+  ],
+  output: {
+    file: <span class="hljs-string">'vue-test-utils.cjs.js'</span>,
+    format: <span class="hljs-string">'cjs'</span>
+  }
+}</code></pre><p>Now it's compiling - with some warnings.</p>
+<pre><code>src/index.ts → vue-test-utils.cjs.js...
+(!) Unresolved dependencies
+https:<span class="hljs-regexp">//</span>rollupjs.org<span class="hljs-regexp">/guide/</span>en/<span class="hljs-comment">#warning-treating-module-as-external-dependency</span>
+lodash<span class="hljs-regexp">/isString (imported by src/u</span>tils.ts)
+lodash<span class="hljs-regexp">/mergeWith (imported by src/u</span>tils.ts)
+@vue<span class="hljs-regexp">/shared (imported by src/</span>stubs.ts, src<span class="hljs-regexp">/utils/m</span>atchName.ts)
+created vue-test-utils.cjs.js <span class="hljs-keyword">in</span> <span class="hljs-number">2.9</span>s
+✨  Done <span class="hljs-keyword">in</span> <span class="hljs-number">3.61</span>s.</code></pre><p>If we look at the top of our bundle, we see:</p>
+<pre><code><span class="hljs-keyword">var</span> isString$<span class="hljs-number">1</span> = _interopDefault(<span class="hljs-built_in">require</span>(<span class="hljs-string">'lodash/isString'</span>));
+<span class="hljs-keyword">var</span> mergeWith = _interopDefault(<span class="hljs-built_in">require</span>(<span class="hljs-string">'lodash/mergeWith'</span>));
+<span class="hljs-keyword">var</span> shared = <span class="hljs-built_in">require</span>(<span class="hljs-string">'@vue/shared'</span>);</code></pre><p>On the first few lines. We need to decide if we want to bundle the source code for those dependencies in our project, or require the user to install them (either by specifying them as a <code>dependency</code> or <code>peerDependency</code>. We will opt for the latter - we want the user to provide their own version of those packages. Furthermore, if you scroll down the bundled file, you will notice it's almost 12000 lines - we are bundling the entire of Vue. This would make the user be stuck on the version of Vue we provide - not ideal. They will want to provide their own version.</p>
+<h2 id="using-external">Using <code>external</code></h2>
+<p>We can specify dependencies the user must provide using <code>external</code>. Update the config:</p>
+<pre><code>  external: [
+    <span class="hljs-symbol">'vue'</span>,
+    <span class="hljs-string">'@vue/shared'</span>,
+    <span class="hljs-symbol">'lodash</span>/mergeWith',
+    <span class="hljs-symbol">'lodash</span>/isString',
+    <span class="hljs-symbol">'dom</span>-event-types'
+  ],</code></pre><p>Now the warning is gone. Look at the bundle - it's only around 900 lines. The top shows the dependencies will be imported from <code>node_modules</code>, where the user will install them:</p>
+<pre><code><span class="hljs-keyword">var</span> vue = <span class="hljs-built_in">require</span>(<span class="hljs-string">'vue'</span>);
+<span class="hljs-keyword">var</span> isString = _interopDefault(<span class="hljs-built_in">require</span>(<span class="hljs-string">'lodash/isString'</span>));
+<span class="hljs-keyword">var</span> mergeWith = _interopDefault(<span class="hljs-built_in">require</span>(<span class="hljs-string">'lodash/mergeWith'</span>));
+<span class="hljs-keyword">var</span> shared = <span class="hljs-built_in">require</span>(<span class="hljs-string">'@vue/shared'</span>);
+<span class="hljs-comment">// ...</span></code></pre><p>This should be enough to get us going. Let's try out the node.js build with the following script:</p>
+<pre><code class="language-js">require(<span class="hljs-string">'jsdom-global'</span>)()
+const { h } = require(<span class="hljs-string">'vue'</span>)
+const { mount } = require(<span class="hljs-string">'./vue-test-utils.cjs.js'</span>)
+
+const App = {
+  render() {
+    <span class="hljs-keyword">return</span> h(<span class="hljs-string">'div'</span>, <span class="hljs-string">'Hello world'</span>)
+  }
+}
+
+const <span class="hljs-keyword">wrapper</span> = mount(App)
+console.log(<span class="hljs-keyword">wrapper</span>.html())</code></pre>
+<p>Running this gives us <code>&lt;div&gt;Hello world&lt;/div&gt;</code>!</p>
+<h2 id="building-for-es-modules">Building for ES Modules</h2>
+<p>Now we have our cjs build, we will focus on the ES build. This will be used by bundlers, and uses the <code>import</code> and <code>export</code> syntax. We will also refactor our <code>config</code> into a <code>createEntry</code> function, so we can reuse it:</p>
+<pre><code class="language-js">import ts <span class="hljs-keyword">from</span> <span class="hljs-string">'rollup-plugin-typescript2'</span>
+
+function createEntry({ file, format }) {
+  const<span class="hljs-built_in"> config </span>= {
+    input: <span class="hljs-string">'src/index.ts'</span>,
+    plugins: [
+      ts()
+    ],
+    external: [
+      <span class="hljs-string">'vue'</span>,
+      <span class="hljs-string">'@vue/shared'</span>,
+      <span class="hljs-string">'lodash/mergeWith'</span>,
+      <span class="hljs-string">'lodash/isString'</span>,
+      <span class="hljs-string">'dom-event-types'</span>
+    ],
+    output: {
+      file,
+      format
+    }
+  }
+
+  return<span class="hljs-built_in"> config
+</span>}
+
+<span class="hljs-builtin-name">export</span><span class="hljs-built_in"> default </span>[
+  createEntry({ format: <span class="hljs-string">'cjs'</span>, file: <span class="hljs-string">'vue-test-utils.cjs.js'</span> }),
+  createEntry({ format: <span class="hljs-string">'es'</span>, file: <span class="hljs-string">'vue-test-utils.esm.js'</span> }),
+]</code></pre>
+<p>Other than the refactor, all we did is change the format from <code>cjs</code> to <code>es</code>. If you run <code>yarn build</code>, get a second bundle - more or less the same, but with the ES module import/export syntax.</p>
+<h2 id="adding-type-definitions">Adding Type Definitions</h2>
+<p>We we want to provide type definitions for TS users, and so far all our bundles are in JS, so they won't have type definitions. We will just generate the type definitions once, when we compile the <code>es</code> module. Update <code>rollup.config.js</code> like so:</p>
+<pre><code class="language-js">import ts <span class="hljs-keyword">from</span> <span class="hljs-string">'rollup-plugin-typescript2'</span>
+
+function createEntry({ file, format }) {
+  const<span class="hljs-built_in"> config </span>= {
+    input: <span class="hljs-string">'src/index.ts'</span>,
+    plugins: [],
+    external: [
+      <span class="hljs-string">'vue'</span>,
+      <span class="hljs-string">'@vue/shared'</span>,
+      <span class="hljs-string">'lodash/mergeWith'</span>,
+      <span class="hljs-string">'lodash/isString'</span>,
+      <span class="hljs-string">'dom-event-types'</span>
+    ],
+    output: {
+      file,
+      format
+    }
+  }
+
+  config.plugins.push(
+    ts({
+      check: format === <span class="hljs-string">'es'</span>,
+      tsconfigOverride: {
+        compilerOptions: {
+          declaration: format === <span class="hljs-string">'es'</span>,
+          target: <span class="hljs-string">'es5'</span>,
+        },
+        exclude: [<span class="hljs-string">'tests'</span>]
+      }
+    })
+  )
+
+  return<span class="hljs-built_in"> config
+</span>}
+
+<span class="hljs-builtin-name">export</span><span class="hljs-built_in"> default </span>[
+  createEntry({ format: <span class="hljs-string">'cjs'</span>, file: <span class="hljs-string">'vue-test-utils.cjs.js'</span> }),
+  createEntry({ format: <span class="hljs-string">'es'</span>, file: <span class="hljs-string">'vue-test-utils.esm.js'</span> }),
+]</code></pre>
+<p>We just moved <code>ts</code> out of <code>plugins</code>, and conditionally check for <code>declaration</code> when the format is <code>es</code>. Now all the <code>.d.ts</code> files are generated.</p>
+<h2 id="bundling-for-the-browser">Bundling for the Browser</h2>
+<p>The final format we are aiming for is as a global variable in a browser. First, we will add a new <code>createEntry</code> call to our exported array:</p>
+<pre><code class="language-js">create<span class="hljs-constructor">Entry({ <span class="hljs-params">format</span>: '<span class="hljs-params">iife</span>', <span class="hljs-params">input</span>: '<span class="hljs-params">src</span><span class="hljs-operator">/</span><span class="hljs-params">index</span>.<span class="hljs-params">ts</span>', <span class="hljs-params">file</span>: '<span class="hljs-params">vue</span>-<span class="hljs-params">test</span>-<span class="hljs-params">utils</span>.<span class="hljs-params">browser</span>.<span class="hljs-params">js</span>' })</span></code></pre>
+<p><code>iife</code> is an immediately invoked function expression. This basically wraps our entire library in a function that is called immediately, to prevent any varibles from leaking into the global scope.</p>
+<p>Next we will update the <code>output</code> key in the config:</p>
+<pre><code class="language-js"><span class="hljs-attribute">output</span>: {
+  file,
+  format,
+  <span class="hljs-attribute">name</span>: <span class="hljs-string">'VueTestUtils'</span>,
+  <span class="hljs-attribute">globals</span>: {
+    <span class="hljs-attribute">vue</span>: <span class="hljs-string">'Vue'</span>,
+    <span class="hljs-string">'lodash/mergeWith'</span>: <span class="hljs-string">'_.mergeWith'</span>,
+    <span class="hljs-string">'lodash/isString'</span>: <span class="hljs-string">'_.isString'</span>,
+  }
+}</code></pre>
+<p>Again, we don't want to bundle Vue or lodash - the user will provide their own. Traditionally these are set to <code>Vue</code> and <code>_</code> respectively. <code>dom-event-types</code> and <code>@vue/shared</code> is a bit different - these are not common included in applications. As such, we are going to bundle this one with Vue Test Utils when it is used in a browser to make the development experience a bit more smooth. Update the config to only include <code>dom-event-types</code> and <code>@vue/shared</code> as external dependencies for the <code>es</code> and <code>cjs</code> builds:</p>
+<pre><code class="language-js"><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">createEntry</span><span class="hljs-params">({ file, format })</span> </span>{
+  <span class="hljs-keyword">const</span> config = {
+    <span class="hljs-comment">// ...</span>
+    external: [
+      <span class="hljs-string">'vue'</span>,
+      <span class="hljs-string">'@vue/shared'</span>,
+      <span class="hljs-string">'lodash/mergeWith'</span>,
+      <span class="hljs-string">'lodash/isString'</span>,
+    ],
+    <span class="hljs-comment">// ...</span>
+  }
+
+  <span class="hljs-keyword">if</span> ([<span class="hljs-string">'es'</span>, <span class="hljs-string">'cjs'</span>].includes(format)) {
+    config.external.push(<span class="hljs-string">'dom-event-types'</span>)
+    config.external.push(<span class="hljs-string">'@vue/shared'</span>)
+  }
+
+  <span class="hljs-comment">// ...</span></code></pre>
+<p>Now if we run this again, it is complaining:</p>
+<pre><code>(!) Unresolved dependencies
+<span class="hljs-keyword">https</span>://rollupjs.org/guide/en/<span class="hljs-comment">#warning-treating-module-as-external-dependency</span>
+@vue/shared (imported <span class="hljs-keyword">by</span> src/stubs.ts, src/utils/matchName.ts)
+(!) Missing <span class="hljs-built_in">global</span> <span class="hljs-built_in">variable</span> name
+Use output.<span class="hljs-built_in">globals</span> <span class="hljs-built_in">to</span> specify browser <span class="hljs-built_in">global</span> <span class="hljs-built_in">variable</span> names corresponding <span class="hljs-built_in">to</span> external modules</code></pre><p>Rollup doesn't know how to inline those dependencies. We have two - the <code>@vue/shared</code> dependency, a JS dependency, and the <code>dom-event-types</code>, which is really just a list of DOM events in a json file - see <a href="https://github.com/eddyerburgh/dom-event-types/blob/master/dom-event-types.json">here</a>.</p>
+<p>To include all of these, we need two plugins:</p>
+<ul>
+<li>resolve plugin</li>
+<li>commonjs plugin</li>
+</ul>
+<p>To tell rollup how to bundle json files from <code>node_modules</code>. The error message does not suggest we need these at all - there isn't a great way to know this, without just playing around and observing the bundle. Anyway, adding those completes our config... almost:</p>
+<pre><code class="language-js">import ts <span class="hljs-keyword">from</span> <span class="hljs-string">'rollup-plugin-typescript2'</span>
+import resolve <span class="hljs-keyword">from</span> <span class="hljs-string">'@rollup/plugin-node-resolve'</span>
+import json <span class="hljs-keyword">from</span> <span class="hljs-string">'@rollup/plugin-json'</span>
+import commonjs <span class="hljs-keyword">from</span> <span class="hljs-string">'@rollup/plugin-commonjs'</span>
+
+function createEntry({ file, format }) {
+  const<span class="hljs-built_in"> config </span>= {
+    input: <span class="hljs-string">'src/index.ts'</span>,
+    plugins: [
+      resolve(), commonjs(), json()
+    ],
+    external: [
+      <span class="hljs-string">'vue'</span>,
+      <span class="hljs-string">'lodash/mergeWith'</span>,
+      <span class="hljs-string">'lodash/isString'</span>
+    ],
+    output: {
+      file,
+      format,
+      name: <span class="hljs-string">'VueTestUtils'</span>,
+      globals: {
+        vue: <span class="hljs-string">'Vue'</span>,
+        <span class="hljs-string">'lodash/mergeWith'</span>: <span class="hljs-string">'_.mergeWith'</span>,
+        <span class="hljs-string">'lodash/isString'</span>: <span class="hljs-string">'_.isString'</span>,
+      }
+    }
+  }
+
+  <span class="hljs-keyword">if</span> ([<span class="hljs-string">'es'</span>, <span class="hljs-string">'cjs'</span>].includes(format)) {
+    config.external.push(<span class="hljs-string">'dom-event-types'</span>)
+    config.external.push(<span class="hljs-string">'@vue/shared'</span>)
+  }
+
+  config.plugins.push(
+    ts({
+      check: format === <span class="hljs-string">'es'</span>,
+      tsconfigOverride: {
+        compilerOptions: {
+          declaration: format === <span class="hljs-string">'es'</span>,
+          target: <span class="hljs-string">'es5'</span>,
+        },
+        exclude: [<span class="hljs-string">'tests'</span>]
+      }
+    })
+  )
+
+  return<span class="hljs-built_in"> config
+</span>}
+
+<span class="hljs-builtin-name">export</span><span class="hljs-built_in"> default </span>[
+  createEntry({ format: <span class="hljs-string">'cjs'</span>, file: <span class="hljs-string">'vue-test-utils.cjs.js'</span> }),
+  createEntry({ format: <span class="hljs-string">'es'</span>, file: <span class="hljs-string">'vue-test-utils.esm.js'</span> }),
+  createEntry({ format: <span class="hljs-string">'iife'</span>, input: <span class="hljs-string">'src/index.ts'</span>, file: <span class="hljs-string">'vue-test-utils.browser.js'</span> })
+]</code></pre>
+<p>Let's try it out in the browser.</p>
+<pre><code class="language-html"><span class="hljs-meta">&lt;!DOCTYPE <span class="hljs-meta-keyword">html</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">html</span> <span class="hljs-attr">lang</span>=<span class="hljs-string">"en"</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">head</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">meta</span> <span class="hljs-attr">charset</span>=<span class="hljs-string">"UTF-8"</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">title</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">title</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">src</span>=<span class="hljs-string">"https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.15/lodash.js"</span> <span class="hljs-attr">integrity</span>=<span class="hljs-string">"sha256-kzv+r6dLqmz7iYuR2OdwUgl4X5RVsoENBzigdF5cxtU="</span> <span class="hljs-attr">crossorigin</span>=<span class="hljs-string">"anonymous"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">script</span>&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">src</span>=<span class="hljs-string">"./vue.global.js"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">src</span>=<span class="hljs-string">"./vue-test-utils.browser.js"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">head</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">body</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">button</span> <span class="hljs-attr">onclick</span>=<span class="hljs-string">"run()"</span>&gt;</span>Run<span class="hljs-tag">&lt;/<span class="hljs-name">button</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">body</span>&gt;</span>
+
+<span class="hljs-tag">&lt;<span class="hljs-name">script</span>&gt;</span><span class="javascript">
+  <span class="hljs-keyword">const</span> App = {
+    render() {
+      <span class="hljs-keyword">return</span> Vue.h(<span class="hljs-string">'div'</span>, <span class="hljs-string">'Hello world'</span>)
+    }
+  }
+
+  VueTestUtils.mount(App)
+</span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">html</span>&gt;</span></code></pre>
+<p><code>vue.global.js</code> is the latest build of Vue 3 for the browser. Running this gives us... <code>ReferenceError: process is not defined</code>. Looking in <code>vue-test-utils.browser.js</code> for <code>process.env</code> shows:</p>
+<pre><code>const EMPTY_OBJ = (process.env.NODE_ENV !== <span class="hljs-string">'production'</span>)
+    ? <span class="hljs-keyword">Object</span>.<span class="hljs-keyword">freeze</span>({})
+    : {};</code></pre><p>This is from <code>@vue/shared</code> - since this is designed to be used as part of a build process with a bundler (such as when you build Vue 3) the Node process variable has not been replaced. We can do this with the <code>replace</code> plugin for Rollup:</p>
+<pre><code class="language-js"><span class="hljs-keyword">import</span> replace <span class="hljs-keyword">from</span> <span class="hljs-string">'@rollup/plugin-replace'</span>
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">createEntry</span>(<span class="hljs-params">{ file, format }</span>) </span>{
+  <span class="hljs-keyword">const</span> config = {
+    <span class="hljs-comment">// ...</span>
+    <span class="hljs-attr">plugins</span>: [
+      replace({
+        <span class="hljs-string">"process.env.NODE_ENV"</span>: <span class="hljs-literal">true</span>
+      }),
+      resolve(), commonjs(), json()
+    ],
+
+    <span class="hljs-comment">// ...</span></code></pre>
+<p>Building this one final time and opening <code>index.html</code> in a browser shows the final, working browser build!</p>
+<h2 id="conclusion">Conclusion</h2>
+<p>We looked at Rollup, the bundler libraries, and how we can build for multiple formats:</p>
+<ul>
+<li>cjs (node.js)</li>
+<li>es modules (ES6)</li>
+<li>browser</li>
+</ul>
+<p>We also discussed the different ways to include or exclude libraries in the builds, and their trade-offs. Find this config in the <a href="https://github.com/vuejs/vue-test-utils-next/">Vue Test Utils Next repo</a>.</p>
+</div>
