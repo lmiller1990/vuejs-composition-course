@@ -12,7 +12,7 @@ jest.mock('axios', () => ({
 }))
 
 describe('ShowPost', () => {
-  it.only('does not render an edit link when no users is logged in', async () => {
+  it('does not render an edit link when no users is logged in', async () => {
     const store = createStore()
     const router = makeRouter()
     router.push('/posts/1')
