@@ -6,5 +6,8 @@ module.exports = {
     "^.+\\.vue$": "vue-jest",
     "^.+\\js$": "babel-jest"
   },
-  moduleFileExtensions: ['vue', 'js', 'json', 'jsx', 'ts', 'tsx', 'node']
+  moduleFileExtensions: ['vue', 'js', 'json', 'jsx', 'ts', 'tsx', 'node'],
+  moduleNameMapper: {
+    "\\.txt$": 'identity-obj-proxy'
+  }
 }
