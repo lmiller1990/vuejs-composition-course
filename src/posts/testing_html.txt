@@ -1,0 +1,208 @@
+<p>UI Libraries like Vue and React and their Testing libraries, Vue Test Utils and Enzyme, can seem like "magic" sometimes. To remove this magic and see exactly how a test framework works, let's build a simple unit testing framework for Vue.js 3, from scratch. Will will see that testing frameworks are just simple wrappers that provide an abstraction around basic usual DOM APIs.</p>
+<p>We will also learn to write Vue components using render functions, instead of single file components (<code>.vue</code> files). This will simplify the setup for this article. The focus of this article is on the concepts behind a unit testing framework, not the specific technologies we are using.</p>
+<h2 id="what-are-we-building">What are we building?</h2>
+<p>We will write a testing framework that implements a subset of Vue Test Utils that will allow us to write the following test:</p>
+<pre><code class="language-js">const <span class="hljs-keyword">wrapper</span> = mount(Component)
+expect(<span class="hljs-keyword">wrapper</span>.find(<span class="hljs-string">'#root'</span>).text()).toBe(<span class="hljs-string">''</span>Count <span class="hljs-keyword">is</span> <span class="hljs-number">0</span><span class="hljs-string">')
+
+wrapper.find('</span>button<span class="hljs-string">').trigger('</span>click<span class="hljs-string">')
+expect(wrapper.find('</span>#root<span class="hljs-string">').text()).toBe(''Count is 1'</span>)</code></pre>
+<p>This has a whole bunch of useful functionality that can accomplish quite a lot - finding elements, triggering events, and asserting content is rendered correctly.</p>
+<h2 id="getting-started">Getting Started</h2>
+<p>This article requires <code>jest</code> and the latest alpha for Vue. Install them with <code>yarn add vue@3.0.0-alpha.4 jest</code>. All the content for this article will be in an entire script, <code>index.spec.js</code>.</p>
+<p>Next, we will define the <code>App</code> component using a <code>render</code> function. A <code>render</code> function is composed from 1 or more <code>h</code> functions, which can be used to built DOM structures. <code>h</code> has a few different signatures, taking between between 1 and 3 arguments. For the sake of simplicity, we will use the implementation of <code>h</code> with three arguments: <code>h(TAG, props, content)</code>, where <code>props</code> is an object of properties, and <code>content</code> is either text content or an array of more <code>h</code> functions. It's probably easier to see this as an example than explain it using text:</p>
+<pre><code class="language-js"><span class="hljs-keyword">const</span> App = {
+  render() {
+    <span class="hljs-keyword">return</span> h(
+      <span class="hljs-string">'div'</span>,
+      {},
+      [h(<span class="hljs-string">'div'</span>, { id: <span class="hljs-string">'root'</span> }, <span class="hljs-string">'Count is ?'</span>)]
+    )
+  }
+}</code></pre>
+<p>This will build the follow DOM structure:</p>
+<pre><code class="language-html"><span class="hljs-attribute">&lt;div&gt;</span>
+  <span class="hljs-attribute">&lt;div id="root&gt;</span>Count is ?<span class="hljs-attribute">&lt;/div&gt;</span>
+<span class="hljs-attribute">&lt;/div&gt;</span></code></pre>
+<p>Now let's attempt it mount it. Vue 3 uses <code>createApp</code> to render an app:</p>
+<pre><code class="language-js">test('renders an app', async () =&gt; {
+  const app = createApp(<span class="hljs-name">App</span>).mount('#app')
+})</code></pre>
+<p>Running this with <code>yarn jest</code> gives us an error: <code>[Vue warn]: Failed to mount app: mount target selector returned null.</code>. Makes sense... there is no <code>&lt;div id="app" /&gt;</code> to mount the app. Jest runs in a DOM like environment using a library called <code>jsdom</code>, so we can go ahead and create an element for the app to mount on:</p>
+<pre><code class="language-js">test('renders an app', async () =&gt; {
+  const el = document.createElement('div')
+  el.id = 'app'
+  document.body.appendChild(<span class="hljs-name">el</span>)
+  const app = createApp(<span class="hljs-name">App</span>).mount('#app')
+
+  console.log(<span class="hljs-name">document</span>.body.outerHTML)
+})</code></pre>
+<p>Adding in the <code>console.log</code> and running the test again gives us <code>&lt;body&gt;&lt;div id="app"&gt;&lt;div&gt;&lt;div id="root"&gt;Count is ?&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/body&gt;</code>. The app has successfully mounted!</p>
+<h2 id="creating-increment">Creating <code>Increment</code></h2>
+<p>We still haven't got a whole lot to test. Let's build a simple <code>Increment</code> component, that emits a <code>increment</code> event when it is clicked. The parent (<code>App</code>) will respond to this by incrementing a count by 1. First, update <code>App</code>:</p>
+<pre><code class="language-js"><span class="hljs-keyword">const</span> App = {
+  <span class="hljs-keyword">set</span><span class="hljs-title">up</span>() {
+    <span class="hljs-keyword">return</span> {
+      <span class="hljs-attr">count</span>: ref(<span class="hljs-number">0</span>)
+    }
+  },
+
+  render() {
+    <span class="hljs-keyword">return</span> h(
+      <span class="hljs-string">'div'</span>,
+      {},
+      [
+        h(<span class="hljs-string">'div'</span>, { <span class="hljs-attr">id</span>: <span class="hljs-string">'root'</span> }, <span class="hljs-string">`Count is <span class="hljs-subst">${<span class="hljs-keyword">this</span>.count}</span>`</span>),
+        h(Increment, { <span class="hljs-attr">onIncrement</span>: <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> <span class="hljs-keyword">this</span>.count++ })
+      ]
+    )
+  }
+}</code></pre>
+<p>When rendering a DOM element, <code>h</code> takes the tag name as a string. For a custom component, however, it takes the actual component as an object. This will compile to the following:</p>
+<pre><code class="language-html">&lt;<span class="hljs-keyword">div</span>&gt;
+  &lt;<span class="hljs-keyword">div</span> <span class="hljs-built_in">id</span>=<span class="hljs-string">"root&gt;Count is ?&lt;/div&gt;
+  &lt;Increment @increment="</span><span class="hljs-built_in">count</span>++<span class="hljs-string">" /&gt;
+&lt;/div&gt;</span></code></pre>
+<p>Of course the test is failing now - let's create the <code>Increment</code> component.</p>
+<h2 id="creating-the-increment-component">Creating the Increment Component</h2>
+<p>We are about to see cool feature of Vue 3's <code>setup</code> function in the <code>Increment</code> component - it can return a render function!</p>
+<pre><code class="language-js"><span class="hljs-keyword">const</span> Increment = {
+  <span class="hljs-keyword">set</span><span class="hljs-title">up</span>(<span class="hljs-params">props, context</span>) {
+    <span class="hljs-keyword">return</span> <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> h(
+      <span class="hljs-string">'button'</span>,
+      {
+        <span class="hljs-attr">onClick</span>: <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> context.emit(<span class="hljs-string">'increment'</span>)
+      },
+      <span class="hljs-string">'Increment'</span>
+    )
+  }
+}</code></pre>
+<p>The way you handle emitting events in Vue 3 components using the <code>setup</code> function is by calling <code>context.emit</code>. This compiles the following:</p>
+<pre><code class="language-html"><span class="hljs-tag">&lt;<span class="hljs-name">button</span> @<span class="hljs-attr">click</span>=<span class="hljs-string">"emit('increment')"</span>&gt;</span>Increment<span class="hljs-tag">&lt;/<span class="hljs-name">button</span>&gt;</span></code></pre>
+<p>The errors are gone - let's make some actual assertions now we have an application work with.</p>
+<h2 id="writing-the-assertions">Writing the Assertions</h2>
+<p>The test we will write is kind obvious, based on the component we just wrote:</p>
+<ul>
+<li>assert count is 0</li>
+<li>find and click the <code>button</code></li>
+<li>assert count is 1</li>
+</ul>
+<p>We will refactor this into the nice API described at the beginning soon. For now, let's get something working, then work backwards from there.</p>
+<pre><code class="language-js">test('renders an app', async () =&gt; {
+  const el = document.createElement('div')
+  el.id = 'app'
+  document.body.appendChild(<span class="hljs-name">el</span>)
+  const app = createApp(<span class="hljs-name">App</span>).mount('#app')
+
+  expect(<span class="hljs-name">document</span>.querySelector('#root').textContent).toBe('Count is <span class="hljs-number">0</span>')
+  // click the button
+  await nextTick()
+  expect(<span class="hljs-name">document</span>.querySelector('#root').textContent).toBe('Count is <span class="hljs-number">1</span>')
+})</code></pre>
+<p>The first assertion passes, which makes sense. The second one fails. Let's see how to dispatch a click event.</p>
+<h2 id="dispatching-dom-events">Dispatching DOM Events</h2>
+<p>The DOM exposes quite a few low level utilities to create and dispatch events. In day to day use, you don't see these often, but they are what drives frameworks like Vue and React. You can create and dispatch a <code>click</code> event as follows:</p>
+<pre><code class="language-js">const evt = document.create<span class="hljs-constructor">Event('Event')</span>
+evt.init<span class="hljs-constructor">Event('<span class="hljs-params">click</span>')</span>
+&lt;DOM ELEMENT&gt;.dispatch<span class="hljs-constructor">Event(<span class="hljs-params">evt</span>)</span></code></pre>
+<p>You can learn more about these methods on <a href="https://developer.mozilla.org/en-US/docs/Web/API/Document/createElement">MDN</a>. We can implement this in our tests as follows:</p>
+<pre><code class="language-js">test('renders an app', async () =&gt; {
+  const el = document.createElement('div')
+  el.id = 'app'
+  document.body.appendChild(<span class="hljs-name">el</span>)
+  const app = createApp(<span class="hljs-name">App</span>).mount('#app')
+
+  expect(<span class="hljs-name">document</span>.querySelector('#root').textContent).toBe('Count is <span class="hljs-number">0</span>')
+  const evt = document.createEvent('Event')
+  evt.initEvent('click')
+  document.querySelector('button').dispatchEvent(<span class="hljs-name">evt</span>)
+  // click the button
+  await nextTick()
+  expect(<span class="hljs-name">document</span>.querySelector('#root').textContent).toBe('Count is <span class="hljs-number">1</span>')
+})</code></pre>
+<p>It now passes! This test is pretty difficult to read and understand - let's work backwards towards to the API described in the beginning.</p>
+<h2 id="creating-the-mount-method">Creating the <code>mount</code> method</h2>
+<p>The first part of the API we will implement is <code>mount</code>. It takes a single argument, the component to mount - in this case, <code>App</code>. It will contain all the logic to render the Vue app:</p>
+<pre><code class="language-js"><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">mount</span>(<span class="hljs-params">Compoment</span>) </span>{
+  <span class="hljs-keyword">const</span> el = <span class="hljs-built_in">document</span>.createElement(<span class="hljs-string">'div'</span>)
+  el.id = <span class="hljs-string">'app'</span>
+  <span class="hljs-built_in">document</span>.body.appendChild(el)
+  <span class="hljs-keyword">const</span> app = createApp(App).mount(<span class="hljs-string">'#app'</span>)
+  <span class="hljs-keyword">return</span> app
+}
+
+test(<span class="hljs-string">'renders an app'</span>, <span class="hljs-keyword">async</span> () =&gt; {
+  mount(App)
+
+  <span class="hljs-comment">// ...</span>
+})</code></pre>
+<p>Still passing. The next part is to implement a <code>wrapper</code> around the raw <code>app</code> which is returned from <code>mount</code>. The reason for this is we want to implement methods like <code>wrapper#find</code> and <code>wrapper#trigger</code> - it's not ideal to attach those to the <code>app</code> object.</p>
+<h2 id="implementing-vuewrapper">Implementing VueWrapper</h2>
+<p>We will define two types of <code>wrapper</code>. <code>VueWrapper</code>, which wraps Vue components, and <code>DOMWrapper</code>, which wraps raw DOM elements. Let's start with <code>VueWrapper</code> and a <code>find</code> function.</p>
+<pre><code class="language-js"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">VueWrapper</span> </span>{
+  <span class="hljs-keyword">constructor</span>(vm) {
+    <span class="hljs-keyword">this</span>.vm = vm
+  }
+
+  find(selector) {
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.vm.$el.querySelector(selector)
+  }
+}</code></pre>
+<p>We save the <code>vm</code> on the class instance for use functions such as <code>find</code>. Find is fairly trivial to implement. Next, we use <code>VueWrapper</code> in <code>mount</code>:</p>
+<pre><code class="language-js"><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">mount</span>(<span class="hljs-params">Compoment</span>) </span>{
+  <span class="hljs-keyword">const</span> el = <span class="hljs-built_in">document</span>.createElement(<span class="hljs-string">'div'</span>)
+  el.id = <span class="hljs-string">'app'</span>
+  <span class="hljs-built_in">document</span>.body.appendChild(el)
+  <span class="hljs-keyword">const</span> app = createApp(App).mount(<span class="hljs-string">'#app'</span>)
+  <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> VueWrapper(app)
+}</code></pre>
+<p>Next, we can simplify our first assertion using the new <code>find</code> method:</p>
+<pre><code class="language-js">test(<span class="hljs-string">'renders an app'</span>, async () =&gt; {
+  const <span class="hljs-keyword">wrapper</span> = mount(App)
+  expect(<span class="hljs-keyword">wrapper</span>.find(<span class="hljs-string">'#root'</span>).textContent).toBe(<span class="hljs-string">'Count is 0'</span>)
+})</code></pre>
+<p>Now the test is a lot more readable. We can do better - let's implement <code>DOMWrapper</code> and <code>trigger</code>.</p>
+<h2 id="implementing-domwrapper">Implementing DOMWrapper</h2>
+<p><code>DOMWrapper</code> is similar to <code>VueWrapper</code>. <code>trigger</code> is more or less the logic we wrote earlier.</p>
+<pre><code class="language-js"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">DOMWrapper</span> </span>{
+  <span class="hljs-keyword">constructor</span>(element) {
+    <span class="hljs-keyword">this</span>.element = element
+  }
+
+  trigger(evtString) {
+    <span class="hljs-keyword">const</span> evt = <span class="hljs-built_in">document</span>.createEvent(<span class="hljs-string">'Event'</span>)
+    evt.initEvent(evtString)
+    <span class="hljs-keyword">this</span>.element.dispatchEvent(evt)
+  }
+}</code></pre>
+<p>We now need to make a change to <code>VueWrapper#find</code> to return a <code>DOMWrapper</code>.</p>
+<pre><code class="language-js"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">VueWrapper</span> </span>{
+  <span class="hljs-keyword">constructor</span>(vm) {
+    <span class="hljs-keyword">this</span>.vm = vm
+  }
+
+  find(selector) {
+    <span class="hljs-keyword">return</span> new DOMWrapper(<span class="hljs-keyword">this</span>.vm.$el.querySelector(selector))
+  }
+}</code></pre>
+<p>Now that <code>find</code> returns a <code>DOMWrapper</code> instead of a <code>HTMLElement</code>, we can no longer do <code>wrapper.find('#root').textContent</code> - we need to call <code>textContent</code> on the <code>element</code> property of <code>DOMWrapper</code>. This is not ideal, and the solution is to implement a <code>text</code> method on the <code>DOMWrapper</code> - an exercise for the reader.</p>
+<p>Now we have <code>trigger</code> and <code>DOMWrapper</code> implemented, our test looks like this:</p>
+<pre><code class="language-js">test(<span class="hljs-string">'renders an app'</span>, async () =&gt; {
+  const <span class="hljs-keyword">wrapper</span> = mount(App)
+  expect(<span class="hljs-keyword">wrapper</span>.find(<span class="hljs-string">'#root'</span>).element.textContent).toBe(<span class="hljs-string">'Count is 0'</span>)
+
+  <span class="hljs-keyword">wrapper</span>.find(<span class="hljs-string">'button'</span>).<span class="hljs-keyword">trigger</span>(<span class="hljs-string">'click'</span>)
+  // click the button
+  await nextTick()
+  expect(<span class="hljs-keyword">wrapper</span>.find(<span class="hljs-string">'#root'</span>).element.textContent).toBe(<span class="hljs-string">'Count is 1'</span>)
+})</code></pre>
+<p>Looking good.</p>
+<h2 id="discussion">Discussion</h2>
+<p>There is a more valuable lesson here than how to build a simple test framework. We demonstrated that testing frameworks are simply <em>abstractions on the existing tooling</em> - there is nothing you can do with a testing framework you could not have accomplished with regular DOM APIs. The benefit of a framework is to make your testing more readable and maintainable.</p>
+<h2 id="conclusion-and-improvements">Conclusion and Improvements</h2>
+<p>Some improvements that can be made are:</p>
+<ul>
+<li>implementing <code>DOMWrapper#text</code>, so we do not need to do <code>find('...').element.textContent</code></li>
+<li>return <code>nextTick from</code>trigger<code>, so you can do</code>await wrapper.find('...').trigger('..')</li>
+</ul>
+<p>These are good exercises for the reader.</p>

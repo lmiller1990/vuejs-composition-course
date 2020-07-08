@@ -1,0 +1,292 @@
+<p>Today we will explore the new Asynchronous Component API for Vue.js 3, and some practical use cases.</p>
+<p>It is defined in the <a href="https://github.com/vuejs/rfcs/blob/master/active-rfcs/0026-async-component-api.md">Asynchronous Component API RFC</a>.</p>
+<h2 id="two-ways-to-define-async-components">Two ways to define async components</h2>
+<p>There are two ways you may define an asynchronous component. This is pretty typical of many APIs in Vue - you have a "simple" way, which just lets you get on with solving your problem, and a more robust way, to give you full control. This is one of the reasons I like Vue so much - it caters to both situations.</p>
+<p>Let's start with the most simple async component, and a basic example. We will be using render functions in <code>.ts</code> files instead of <code>.vue</code> files in this article. The reason is we will be using webpack 5 beta, which does not appear to work with <code>vue-loader</code> out of the box (<code>vue-loader</code> targets webpack 4). The concepts and ideas are the same.</p>
+<pre><code class="language-ts"><span class="hljs-keyword">import</span> { defineComponent, h, createApp } <span class="hljs-keyword">from</span> <span class="hljs-string">'vue'</span>
+<span class="hljs-keyword">import</span> Hello <span class="hljs-keyword">from</span> <span class="hljs-string">'./Hello'</span>
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> App = defineComponent({
+  name: <span class="hljs-string">'App'</span>,
+
+  components: {
+    Hello
+  },
+
+  render() {
+    <span class="hljs-keyword">return</span> h(<span class="hljs-string">'div'</span>, [<span class="hljs-string">'This is app'</span>, h(Hello)])
+  }
+})
+
+<span class="hljs-built_in">window</span>.addEventListener(<span class="hljs-string">'DOMContentLoaded'</span>, <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
+  <span class="hljs-keyword">const</span> el = <span class="hljs-built_in">document</span>.createElement(<span class="hljs-string">'div'</span>)
+  el.id = <span class="hljs-string">'app'</span>
+  <span class="hljs-built_in">document</span>.body.appendChild(el)
+
+  createApp(App).mount(<span class="hljs-string">'#app'</span>)
+})</code></pre>
+<p>In this example, we just render the world "Hello" using a <code>&lt;Hello /&gt;</code> component. Not exciting. We can create an asynchronous component from any regular component though, like this:</p>
+<pre><code class="language-ts"><span class="hljs-keyword">import</span> { defineComponent, h, createApp, defineAsyncComponent } <span class="hljs-keyword">from</span> <span class="hljs-string">'vue'</span>
+
+<span class="hljs-keyword">const</span> AsyncHello = defineAsyncComponent(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> <span class="hljs-keyword">import</span>(<span class="hljs-string">'./Hello'</span>))
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> App = defineComponent({
+  <span class="hljs-attr">name</span>: <span class="hljs-string">'App'</span>,
+
+  <span class="hljs-attr">components</span>: {
+    AsyncHello
+  },
+
+  render() {
+    <span class="hljs-keyword">return</span> h(<span class="hljs-string">'div'</span>, [<span class="hljs-string">'This is app'</span>, h(AsyncHello)])
+  }
+})</code></pre>
+<p>Vue 3 gives us a <code>defineAsyncComponent</code> function, which lets us import the component by passing a callback. This looks like nothing, but it opens a lot of possibilities. In the first example, when we build our project, we get one large <code>bundle.js</code> file that has all the component code in the build. In a very large app, this could be a very big file, which may lead to poor performance on the initial page load.</p>
+<p>By defining the component using <code>defineAsyncComponent</code>, and passing a callback, we can defer loading the <code>Hello.vue</code> component until the component is actually loaded. This main place this is useful is loading routes asynchronously - for example, you might only load the <code>/shopping_cart</code> route when (if) the user accesses that page.</p>
+<p>This alone is <em>not</em> enough to actually load the component independantly - you need to configure your build tool to create it in a separate file (this will most often be with Webpack). Most tutorials will stop here and say "that's outside the scope of this lecture/article!" which is not exactly useful. This is not one of those articles. Install these dependencies:</p>
+<pre><code class="language-json">{
+  <span class="hljs-attr">"dependencies"</span>: {
+    <span class="hljs-attr">"vue"</span>: <span class="hljs-string">"^3.0.0-beta.7"</span>,
+  },
+  <span class="hljs-attr">"devDependencies"</span>: {
+    <span class="hljs-attr">"ts-loader"</span>: <span class="hljs-string">"^7.0.2"</span>,
+    <span class="hljs-attr">"typescript"</span>: <span class="hljs-string">"^3.8.3"</span>,
+    <span class="hljs-attr">"webpack-cli"</span>: <span class="hljs-string">"^3.3.11"</span>,
+    <span class="hljs-attr">"webpack"</span>: <span class="hljs-string">"^5.0.0-beta.15"</span>
+  }
+}</code></pre>
+<p>And a simple webpack config:</p>
+<pre><code class="language-js">const path = require(<span class="hljs-string">'path'</span>)
+
+module.exports = {
+  <span class="hljs-keyword">mode</span>: <span class="hljs-string">"development"</span>,
+  entry: {
+    <span class="hljs-built_in">index</span>: <span class="hljs-string">'./App.ts'</span>
+  },
+  outpu<span class="hljs-variable">t:</span> {
+    path: path.<span class="hljs-built_in">resolve</span>(__dirname, <span class="hljs-string">'./dist'</span>),
+    publicPath: <span class="hljs-string">'/dist/'</span>
+  },
+  module: {
+    rule<span class="hljs-variable">s:</span> [
+      {
+        tes<span class="hljs-variable">t:</span> /\.<span class="hljs-keyword">ts</span>$/,
+        loader: <span class="hljs-string">'ts-loader'</span>,
+      }
+    ]
+  },
+  <span class="hljs-built_in">resolve</span>: {
+    extension<span class="hljs-variable">s:</span> [<span class="hljs-string">".ts"</span>, <span class="hljs-string">".tsx"</span>, <span class="hljs-string">".js"</span>]
+  },
+}</code></pre>
+<p>And <code>tsconfig.json</code>:</p>
+<pre><code class="language-json">{
+  <span class="hljs-attr">"compilerOptions"</span>: {
+    <span class="hljs-attr">"target"</span>: <span class="hljs-string">"ES6"</span>,
+    <span class="hljs-attr">"module"</span>: <span class="hljs-string">"ESNext"</span>,
+    <span class="hljs-attr">"moduleResolution"</span>: <span class="hljs-string">"node"</span>,
+    <span class="hljs-attr">"lib"</span>: [<span class="hljs-string">"es2017"</span>, <span class="hljs-string">"dom"</span>]
+  }
+}</code></pre>
+<p>We will use webpack soon. First we will look at the a more robust way to define an async component.</p>
+<h2 id="the-options-api">The "options" API</h2>
+<p>I call this the "options" API, since you supply lots of options. First, we will build the above example using the options API:</p>
+<pre><code class="language-vue"><span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">lang</span>=<span class="hljs-string">"ts"</span>&gt;</span><span class="javascript">
+<span class="hljs-keyword">import</span> { h, defineComponent, defineAsyncComponent, ComponentOptions } <span class="hljs-keyword">from</span> <span class="hljs-string">'vue'</span>
+<span class="hljs-keyword">import</span> Hello <span class="hljs-keyword">from</span> <span class="hljs-string">'./Hello.vue'</span>
+
+<span class="hljs-keyword">const</span> Loader = defineComponent({
+  render() {
+    <span class="hljs-keyword">return</span> h(<span class="hljs-string">'progress'</span>)
+  }
+})
+
+<span class="hljs-keyword">const</span> AsyncHello = defineAsyncComponent({
+  <span class="hljs-attr">loader</span>: <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">Promise</span>&lt;any&gt;(<span class="hljs-function"><span class="hljs-params">res</span> =&gt;</span> {
+      <span class="hljs-keyword">set</span><span class="hljs-title">Timeout</span>(<span class="hljs-params">(</span>) =&gt; {
+        res(Hello)
+      }, <span class="hljs-number">5000</span>)
+    })
+  },
+
+  <span class="hljs-attr">loadingComponent</span>: Loader,
+  <span class="hljs-attr">delay</span>: <span class="hljs-number">0</span>
+})
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> defineComponent({
+  <span class="hljs-attr">name</span>: <span class="hljs-string">'App'</span>,
+
+  <span class="hljs-attr">components</span>: {
+    AsyncHello
+  }
+})
+</span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span></code></pre>
+<p>When using the options API, you will pass an object to <code>defineAsyncComponent</code>. I am using <code>loader</code>, <code>loadingComponent</code> and <code>delay</code>.</p>
+<ul>
+<li><code>loader</code> is a function that must return a component. When they call it <code>loader</code>, they mean "the function that will <em>load</em> the component". In this case, we delay it for 2000ms.</li>
+<li><code>loadingComponent</code>. This is like <code>&lt;template #fallback&gt;</code> in the new <code>Suspense</code> API, which you can read about in my <a href="/blog/introduction-to-suspense">Introduction to Suspense</a> article. This will be displayed until <code>loader</code> returns.</li>
+<li><code>delay</code>. This is the duration until the <code>loadingComponent</code> is shown. I always set this to <code>0</code> - I want to show the loading component straight away, while we wait for <code>loader</code> to resolve. If it was <code>1000</code>, we should show nothing for 1000ms, then the loading component until 5000ms, then the Hello component.</li>
+</ul>
+<h2 id="when-loading-fails">When loading fails</h2>
+<p>There is another option: <code>errorComponent</code>. This will be rendered when an error occurs in <code>loader</code>. For example:</p>
+<pre><code class="language-ts"><span class="hljs-keyword">const</span> ErrorComponent = defineComponent({
+  render() {
+    <span class="hljs-keyword">return</span> h(<span class="hljs-string">'div'</span>, <span class="hljs-string">'Error'</span>)
+  }
+})
+
+<span class="hljs-keyword">const</span> AsyncHello = defineAsyncComponent({
+  loader: <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">Promise</span>&lt;<span class="hljs-built_in">any</span>&gt;<span class="hljs-function">(<span class="hljs-params">(<span class="hljs-params">res, rej</span>) =&gt; {
+      setTimeout(<span class="hljs-params">(<span class="hljs-params"></span>) =&gt; {
+        rej(<span class="hljs-params"></span>)
+      }, 2000</span>)
+    }</span>)
+  },
+
+  <span class="hljs-params">loadingComponent</span>: <span class="hljs-params">Loader</span>,
+  <span class="hljs-params">errorComponent</span>: <span class="hljs-params">ErrorComponent</span>,
+  <span class="hljs-params">delay</span>: 0
+})</span></code></pre>
+<p>This will render <code>Error</code> after 2000ms. Not all hope is lost! There is an <code>onError</code> callback. We can use it like this:</p>
+<pre><code class="language-ts"><span class="hljs-keyword">let</span> loadAttempts = <span class="hljs-number">0</span>
+<span class="hljs-keyword">const</span> AsyncHello = defineAsyncComponent({
+  loader: <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">Promise</span>&lt;<span class="hljs-built_in">any</span>&gt;<span class="hljs-function">(<span class="hljs-params">(<span class="hljs-params">res, rej</span>) =&gt; {
+      setTimeout(<span class="hljs-params">(<span class="hljs-params"></span>) =&gt; {
+        <span class="hljs-keyword">if</span> (<span class="hljs-params">loadAttempts &lt; 3</span>) {
+          loadAttempts += 1
+          rej(<span class="hljs-params"></span>)
+        } <span class="hljs-keyword">else</span> {
+          res(<span class="hljs-params">Hello</span>)
+        }
+      }, 1000</span>)
+    }</span>)
+  },
+
+  <span class="hljs-params">loadingComponent</span>: <span class="hljs-params">Loader</span>,
+  <span class="hljs-params">errorComponent</span>: <span class="hljs-params">ErrorComponent</span>,
+  <span class="hljs-params">delay</span>: 0,
+  <span class="hljs-params">onError</span>(<span class="hljs-params">error, retry, fail, attempts</span>) {
+    <span class="hljs-params">retry</span><span class="hljs-params">()</span>
+  }
+})</span></code></pre>
+<p>In this example, we keep retrying with <code>retry</code> until <code>loadAttempts</code> is greater than 3, then we successfully load the component. This wouldn't be ideal in a production system - after a few fails attempts, you likely just want to show a error message and prompt the user to try again - your service is probably down if the component has failed to load multiple times. You can also track the amount of failures using the <code>attempts</code> argument, the fourth argument to <code>onError</code>.</p>
+<h2 id="actually-loading-the-component-asynchronously">Actually loading the component asynchronously</h2>
+<p>Now we know about the different ways to make asynchronous components, time to see it in action. Create <code>Hello.ts</code> and <code>Greet.ts</code> like so:</p>
+<pre><code><span class="hljs-regexp">//</span> Hello.ts
+<span class="hljs-keyword">import</span> { defineComponent, h, ref, defineAsyncComponent } <span class="hljs-keyword">from</span> <span class="hljs-string">"vue"</span>;
+
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> defineComponent({
+  data() {
+    <span class="hljs-keyword">return</span> {
+      show: <span class="hljs-literal">false</span>
+    }
+  },
+
+  render() {
+    <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.show) {
+      const Greet = defineAsyncComponent(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> <span class="hljs-keyword">import</span>(<span class="hljs-string">'./Greet'</span>))
+      <span class="hljs-keyword">return</span> h(Greet)
+    } <span class="hljs-keyword">else</span> {
+      <span class="hljs-keyword">return</span> h(<span class="hljs-string">'button'</span>, { onClick: <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> <span class="hljs-keyword">this</span>.show = <span class="hljs-literal">true</span> }, <span class="hljs-string">'Show Greeting'</span>)
+    }
+  }
+})</code></pre><pre><code><span class="hljs-comment">// Greet.ts</span>
+<span class="hljs-keyword">import</span> { defineComponent, h } <span class="hljs-keyword">from</span> <span class="hljs-string">"vue"</span>;
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> defineComponent({
+  render() {
+    <span class="hljs-keyword">return</span> h(<span class="hljs-string">'div'</span>, <span class="hljs-string">'Greet Component'</span>)
+  }
+})</code></pre><p><code>Greet</code> is conditionally rendered when you click "Show Greeting". This means we do not want to load the component until it is actually needed.</p>
+<p><code>App.ts</code> is like this:</p>
+<pre><code class="language-ts"><span class="hljs-keyword">import</span> { defineComponent, h, createApp, defineAsyncComponent } <span class="hljs-keyword">from</span> <span class="hljs-string">'vue'</span>
+
+<span class="hljs-keyword">const</span> AsyncHello = defineAsyncComponent(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> <span class="hljs-keyword">import</span>(<span class="hljs-string">'./Hello'</span>))
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> App = defineComponent({
+  name: <span class="hljs-string">'App'</span>,
+
+  components: {
+    AsyncHello
+  },
+
+  render() {
+    <span class="hljs-keyword">return</span> h(<span class="hljs-string">'div'</span>, [<span class="hljs-string">'This is app'</span>, h(AsyncHello)])
+  }
+})
+
+<span class="hljs-built_in">window</span>.addEventListener(<span class="hljs-string">'DOMContentLoaded'</span>, <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
+  <span class="hljs-keyword">const</span> el = <span class="hljs-built_in">document</span>.createElement(<span class="hljs-string">'div'</span>)
+  el.id = <span class="hljs-string">'app'</span>
+  <span class="hljs-built_in">document</span>.body.appendChild(el)
+
+  createApp(App).mount(<span class="hljs-string">'#app'</span>)
+})</code></pre>
+<p><code>Hello</code> is also asynchronous - this is kind of pointless, since we need it immeidately, but it helps drive home the bundle splitting we are about to do.</p>
+<p>Run <code>yarn webpack --mode="development"</code>. You will see <code>dist</code> has three files:</p>
+<pre><code>$ ls dist
+<span class="hljs-module-access"><span class="hljs-module"><span class="hljs-identifier">Greet_ts</span>.</span></span>js    <span class="hljs-module-access"><span class="hljs-module"><span class="hljs-identifier">Hello_ts</span>.</span></span>js    index.js
+
+      Asset      Size
+<span class="hljs-module-access"><span class="hljs-module"><span class="hljs-identifier">Greet_ts</span>.</span></span>js  <span class="hljs-number">1.78</span> KiB  <span class="hljs-literal">[<span class="hljs-identifier">emitted</span>]</span>
+<span class="hljs-module-access"><span class="hljs-module"><span class="hljs-identifier">Hello_ts</span>.</span></span>js  <span class="hljs-number">2.38</span> KiB  <span class="hljs-literal">[<span class="hljs-identifier">emitted</span>]</span>
+   index.js   <span class="hljs-number">359</span> KiB  <span class="hljs-literal">[<span class="hljs-identifier">emitted</span>]</span>  <span class="hljs-literal">[<span class="hljs-identifier">name</span>: <span class="hljs-identifier">index</span>]</span></code></pre><p><code>index.js</code> is big. It contains all of Vue - that's why. <code>Greet_ts</code> and <code>Hello_ts</code> are small - they are tiny little components. Webpack is smart enough to not bundle Vue with them, since it is already in <code>index.js</code>.</p>
+<p>Here is my <code>index.html</code>:</p>
+<pre><code class="language-html"><span class="hljs-meta">&lt;!DOCTYPE <span class="hljs-meta-keyword">html</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">html</span> <span class="hljs-attr">lang</span>=<span class="hljs-string">"en"</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">head</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">meta</span> <span class="hljs-attr">charset</span>=<span class="hljs-string">"UTF-8"</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">title</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">title</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">src</span>=<span class="hljs-string">"./dist/index.js"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">head</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">body</span>&gt;</span>
+
+<span class="hljs-tag">&lt;/<span class="hljs-name">body</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">html</span>&gt;</span></code></pre>
+<p>I ran a server server with <code>python3 -m http.server</code>. Visting localhost:8000, I get:</p>
+<p><img src="https://raw.githubusercontent.com/lmiller1990/electic/master/screenshots/async-components-ss-1.png" alt=""></p>
+<p>Note the Network tab - we loaded <code>Hello_ts</code> individually. Cool. Now click "Show Greeting":</p>
+<p><img src="https://raw.githubusercontent.com/lmiller1990/electic/master/screenshots/async-components-ss-2.png" alt=""></p>
+<p>It only loaded the Greet component when it was needed! You can play around with the most robust "options" API to see what else it can do.</p>
+<h2 id="how-about-testing">How about testing?</h2>
+<p>Testing will be easy or hard, depending on your setup. I've had good experience so far, with minimal problems. I have added some simple tests using async components to the latest version of Vue Test Utils - see them <a href="https://github.com/vuejs/vue-test-utils-next/pull/105/files">here</a>. An example is like this:</p>
+<pre><code class="language-ts">it(<span class="hljs-string">'works with options usage'</span>, <span class="hljs-keyword">async</span> (done) =&gt; {
+  <span class="hljs-keyword">const</span> Async = defineAsyncComponent({
+    loader: <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span>
+      <span class="hljs-keyword">new</span> <span class="hljs-built_in">Promise</span>&lt;<span class="hljs-built_in">any</span>&gt;<span class="hljs-function">(<span class="hljs-params">(<span class="hljs-params">res</span>) =&gt; {
+        setTimeout(<span class="hljs-params">(<span class="hljs-params"></span>) =&gt; {
+          res(<span class="hljs-params">{
+            template: '&lt;div&gt;Async Component&lt;/div&gt;'
+          }</span>)
+        }, 75</span>)
+      }</span>),
+    <span class="hljs-params">loadingComponent</span>: {
+      <span class="hljs-params">template</span>: '&lt;<span class="hljs-params">div</span>&gt;<span class="hljs-params">Loading</span> <span class="hljs-params">Component</span>&lt;/<span class="hljs-params">div</span>&gt;'
+    },
+    <span class="hljs-params">delay</span>: 10
+  })
+
+  <span class="hljs-params">const</span> <span class="hljs-params">Comp</span> = <span class="hljs-params">defineComponent</span>(<span class="hljs-params">{
+    render(<span class="hljs-params"></span>) {
+      <span class="hljs-keyword">return</span> h(<span class="hljs-params">'div', [h(<span class="hljs-params">Async</span>)]</span>)
+    }
+  }</span>)
+
+  <span class="hljs-params">const</span> <span class="hljs-params">wrapper</span> = <span class="hljs-params">mount</span>(<span class="hljs-params">Comp</span>)
+
+  <span class="hljs-params">setTimeout</span>(<span class="hljs-params">(<span class="hljs-params"></span>) =&gt; {
+    expect(<span class="hljs-params">wrapper.html(<span class="hljs-params"></span>)</span>).toContain(<span class="hljs-params">'Loading Component'</span>)
+  }, 35</span>)
+
+  <span class="hljs-params">setTimeout</span>(<span class="hljs-params">(<span class="hljs-params"></span>) =&gt; {
+    expect(<span class="hljs-params">wrapper.html(<span class="hljs-params"></span>)</span>).toContain(<span class="hljs-params">'Async Component'</span>)
+    done(<span class="hljs-params"></span>)
+  }, 100</span>)
+})</span></code></pre>
+<p>As you can see, we use <code>setTimeout</code> to ensure our expectations are running at the correct time. Even if you use webpack as your build tool and Jest as your test tool, things should still work the same, since Jest will just read and import files as needed, regardless of how you are bundling them with webpack.</p>
+<h2 id="conclusion">Conclusion</h2>
+<p>Asynchronous components can be used to split your bundle and load components just before they are needed. You can easily transform an existing component to be asynchronous using <code>defineAsyncComponent</code> and returning an <code>import</code>, or use the options API to have more control. Loading components asychronously can improve performance, but it comes with added complexity. As always, weight up the pros and cons, and go for the most simple solution that satisfies your needs.</p>

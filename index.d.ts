@@ -1,3 +1,7 @@
 declare module '*.vue' {
-  export default {}
+  export default any
+}
+
+declare module '*.txt' {
+  export default string
 }

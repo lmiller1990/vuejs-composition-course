@@ -1,0 +1,309 @@
+UI Libraries like Vue and React and their Testing libraries, Vue Test Utils and Enzyme, can seem like "magic" sometimes. To remove this magic and see exactly how a test framework works, let's build a simple unit testing framework for Vue.js 3, from scratch. Will will see that testing frameworks are just simple wrappers that provide an abstraction around basic usual DOM APIs.
+
+We will also learn to write Vue components using render functions, instead of single file components (`.vue` files). This will simplify the setup for this article. The focus of this article is on the concepts behind a unit testing framework, not the specific technologies we are using.
+
+## What are we building?
+
+We will write a testing framework that implements a subset of Vue Test Utils that will allow us to write the following test:
+
+```js
+const wrapper = mount(Component)
+expect(wrapper.find('#root').text()).toBe(''Count is 0')
+
+wrapper.find('button').trigger('click')
+expect(wrapper.find('#root').text()).toBe(''Count is 1')
+```
+
+This has a whole bunch of useful functionality that can accomplish quite a lot - finding elements, triggering events, and asserting content is rendered correctly.
+
+## Getting Started
+
+This article requires `jest` and the latest alpha for Vue. Install them with `yarn add vue@3.0.0-alpha.4 jest`. All the content for this article will be in an entire script, `index.spec.js`.
+
+Next, we will define the `App` component using a `render` function. A `render` function is composed from 1 or more `h` functions, which can be used to built DOM structures. `h` has a few different signatures, taking between between 1 and 3 arguments. For the sake of simplicity, we will use the implementation of `h` with three arguments: `h(TAG, props, content)`, where `props` is an object of properties, and `content` is either text content or an array of more `h` functions. It's probably easier to see this as an example than explain it using text:
+
+```js
+const App = {
+  render() {
+    return h(
+      'div',
+      {},
+      [h('div', { id: 'root' }, 'Count is ?')]
+    )
+  }
+}
+```
+
+This will build the follow DOM structure:
+
+```html
+<div>
+  <div id="root>Count is ?</div>
+</div>
+```
+
+Now let's attempt it mount it. Vue 3 uses `createApp` to render an app:
+
+```js
+test('renders an app', async () => {
+  const app = createApp(App).mount('#app')
+})
+```
+
+Running this with `yarn jest` gives us an error: `[Vue warn]: Failed to mount app: mount target selector returned null.`. Makes sense... there is no `<div id="app" />` to mount the app. Jest runs in a DOM like environment using a library called `jsdom`, so we can go ahead and create an element for the app to mount on:
+
+```js
+test('renders an app', async () => {
+  const el = document.createElement('div')
+  el.id = 'app'
+  document.body.appendChild(el)
+  const app = createApp(App).mount('#app')
+
+  console.log(document.body.outerHTML)
+})
+```
+
+Adding in the `console.log` and running the test again gives us `<body><div id="app"><div><div id="root">Count is ?</div></div></div></body>`. The app has successfully mounted!
+
+## Creating `Increment`
+
+We still haven't got a whole lot to test. Let's build a simple `Increment` component, that emits a `increment` event when it is clicked. The parent (`App`) will respond to this by incrementing a count by 1. First, update `App`:
+
+```js
+const App = {
+  setup() {
+    return {
+      count: ref(0)
+    }
+  },
+
+  render() {
+    return h(
+      'div',
+      {},
+      [
+        h('div', { id: 'root' }, `Count is ${this.count}`),
+        h(Increment, { onIncrement: () => this.count++ })
+      ]
+    )
+  }
+}
+```
+
+When rendering a DOM element, `h` takes the tag name as a string. For a custom component, however, it takes the actual component as an object. This will compile to the following:
+
+```html
+<div>
+  <div id="root>Count is ?</div>
+  <Increment @increment="count++" />
+</div>
+```
+
+Of course the test is failing now - let's create the `Increment` component.
+
+## Creating the Increment Component
+
+We are about to see cool feature of Vue 3's `setup` function in the `Increment` component - it can return a render function!
+
+```js
+const Increment = {
+  setup(props, context) {
+    return () => h(
+      'button',
+      {
+        onClick: () => context.emit('increment')
+      },
+      'Increment'
+    )
+  }
+}
+```
+
+The way you handle emitting events in Vue 3 components using the `setup` function is by calling `context.emit`. This compiles the following:
+
+```html
+<button @click="emit('increment')">Increment</button>
+```
+
+The errors are gone - let's make some actual assertions now we have an application work with.
+
+## Writing the Assertions
+
+The test we will write is kind obvious, based on the component we just wrote:
+
+- assert count is 0
+- find and click the `button`
+- assert count is 1
+
+We will refactor this into the nice API described at the beginning soon. For now, let's get something working, then work backwards from there.
+
+```js
+test('renders an app', async () => {
+  const el = document.createElement('div')
+  el.id = 'app'
+  document.body.appendChild(el)
+  const app = createApp(App).mount('#app')
+
+  expect(document.querySelector('#root').textContent).toBe('Count is 0')
+  // click the button
+  await nextTick()
+  expect(document.querySelector('#root').textContent).toBe('Count is 1')
+})
+```
+
+The first assertion passes, which makes sense. The second one fails. Let's see how to dispatch a click event.
+
+## Dispatching DOM Events
+
+The DOM exposes quite a few low level utilities to create and dispatch events. In day to day use, you don't see these often, but they are what drives frameworks like Vue and React. You can create and dispatch a `click` event as follows:
+
+```js
+const evt = document.createEvent('Event')
+evt.initEvent('click')
+<DOM ELEMENT>.dispatchEvent(evt)
+```
+
+You can learn more about these methods on [MDN](https://developer.mozilla.org/en-US/docs/Web/API/Document/createElement). We can implement this in our tests as follows:
+
+```js
+test('renders an app', async () => {
+  const el = document.createElement('div')
+  el.id = 'app'
+  document.body.appendChild(el)
+  const app = createApp(App).mount('#app')
+
+  expect(document.querySelector('#root').textContent).toBe('Count is 0')
+  const evt = document.createEvent('Event')
+  evt.initEvent('click')
+  document.querySelector('button').dispatchEvent(evt)
+  // click the button
+  await nextTick()
+  expect(document.querySelector('#root').textContent).toBe('Count is 1')
+})
+```
+
+It now passes! This test is pretty difficult to read and understand - let's work backwards towards to the API described in the beginning.
+
+## Creating the `mount` method
+
+The first part of the API we will implement is `mount`. It takes a single argument, the component to mount - in this case, `App`. It will contain all the logic to render the Vue app:
+
+```js
+function mount(Compoment) {
+  const el = document.createElement('div')
+  el.id = 'app'
+  document.body.appendChild(el)
+  const app = createApp(App).mount('#app')
+  return app
+}
+
+test('renders an app', async () => {
+  mount(App)
+
+  // ...
+})
+```
+
+Still passing. The next part is to implement a `wrapper` around the raw `app` which is returned from `mount`. The reason for this is we want to implement methods like `wrapper#find` and `wrapper#trigger` - it's not ideal to attach those to the `app` object.
+
+## Implementing VueWrapper
+
+We will define two types of `wrapper`. `VueWrapper`, which wraps Vue components, and `DOMWrapper`, which wraps raw DOM elements. Let's start with `VueWrapper` and a `find` function.
+
+```js
+class VueWrapper {
+  constructor(vm) {
+    this.vm = vm
+  }
+
+  find(selector) {
+    return this.vm.$el.querySelector(selector)
+  }
+}
+```
+
+We save the `vm` on the class instance for use functions such as `find`. Find is fairly trivial to implement. Next, we use `VueWrapper` in `mount`:
+
+```js
+function mount(Compoment) {
+  const el = document.createElement('div')
+  el.id = 'app'
+  document.body.appendChild(el)
+  const app = createApp(App).mount('#app')
+  return new VueWrapper(app)
+}
+```
+
+Next, we can simplify our first assertion using the new `find` method:
+
+```js
+test('renders an app', async () => {
+  const wrapper = mount(App)
+  expect(wrapper.find('#root').textContent).toBe('Count is 0')
+})
+```
+
+Now the test is a lot more readable. We can do better - let's implement `DOMWrapper` and `trigger`.
+
+## Implementing DOMWrapper
+
+`DOMWrapper` is similar to `VueWrapper`. `trigger` is more or less the logic we wrote earlier.
+
+```js
+class DOMWrapper {
+  constructor(element) {
+    this.element = element
+  }
+
+  trigger(evtString) {
+    const evt = document.createEvent('Event')
+    evt.initEvent(evtString)
+    this.element.dispatchEvent(evt)
+  }
+}
+```
+
+We now need to make a change to `VueWrapper#find` to return a `DOMWrapper`.
+
+```js
+class VueWrapper {
+  constructor(vm) {
+    this.vm = vm
+  }
+
+  find(selector) {
+    return new DOMWrapper(this.vm.$el.querySelector(selector))
+  }
+}
+```
+
+Now that `find` returns a `DOMWrapper` instead of a `HTMLElement`, we can no longer do `wrapper.find('#root').textContent` - we need to call `textContent` on the `element` property of `DOMWrapper`. This is not ideal, and the solution is to implement a `text` method on the `DOMWrapper` - an exercise for the reader.
+
+Now we have `trigger` and `DOMWrapper` implemented, our test looks like this:
+
+```js
+test('renders an app', async () => {
+  const wrapper = mount(App)
+  expect(wrapper.find('#root').element.textContent).toBe('Count is 0')
+
+  wrapper.find('button').trigger('click')
+  // click the button
+  await nextTick()
+  expect(wrapper.find('#root').element.textContent).toBe('Count is 1')
+})
+```
+
+Looking good.
+
+## Discussion
+
+There is a more valuable lesson here than how to build a simple test framework. We demonstrated that testing frameworks are simply *abstractions on the existing tooling* - there is nothing you can do with a testing framework you could not have accomplished with regular DOM APIs. The benefit of a framework is to make your testing more readable and maintainable.
+
+## Conclusion and Improvements
+
+Some improvements that can be made are:
+
+- implementing `DOMWrapper#text`, so we do not need to do `find('...').element.textContent`
+- return `nextTick from `trigger`, so you can do `await wrapper.find('...').trigger('..')
+
+These are good exercises for the reader.
