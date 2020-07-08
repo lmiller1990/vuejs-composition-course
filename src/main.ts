@@ -14,7 +14,6 @@ axios.get = async (url: string) => {
     return Promise.resolve({
       data: [
         mockData.thisWeek,
-        mockData.todayPost,
         mockData.thisMonth,
         mockData.rollup,
         mockData.asyncComponents,
