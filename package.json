@@ -9,9 +9,6 @@
     "build": "yarn webpack --mode production"
   },
   "devDependencies": {
-    "@babel/preset-env": "^7.9.0",
-    "@types/moment": "^2.13.0",
-    "@vue/test-utils": "^2.0.0-alpha.1",
     "@babel/node": "^7.8.7",
     "@babel/preset-env": "^7.9.0",
     "@types/highlight.js": "^9.12.3",
@@ -25,6 +22,7 @@
     "clean-webpack-plugin": "^3.0.0",
     "css-loader": "^3.5.3",
     "flush-promises": "^1.0.2",
+    "identity-obj-proxy": "^3.0.0",
     "jest": "^25.2.7",
     "raw-loader": "^4.0.1",
     "style-loader": "^1.2.1",

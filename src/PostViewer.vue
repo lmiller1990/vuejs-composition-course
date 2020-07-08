@@ -30,6 +30,7 @@ export default defineComponent({
     const post = store.getState().posts.all[id]
     const canEdit = computed(() => post.authorId === parseInt(store.getState().authors.currentUserId!, 10))
 
+console.log(canEdit)
     return {
       post,
       to: `/posts/${post.id}/edit`,

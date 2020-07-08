@@ -26,7 +26,7 @@ const initialAuthorsState = (): AuthorsState => ({
   all: {},
   ids: [],
   loaded: false,
-  currentUserId: '1'
+  currentUserId: process.env.NODE_ENV === 'production' ? '1' : undefined
 })
 
 const initialPostsState = (): PostsState => ({

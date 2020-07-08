@@ -20,8 +20,8 @@ export const todayPost: Post = {
   ...basePost,
   id: 1,
   title: 'Test Post (Today) 🎉',
-  markdown: 'This is a test post. Sign in to edit it!',
-  html: '<p>This is a test post. Sign in to edit it!</p>',
+  markdown: 'This is a test post. Check out some of the others to see syntax highlighting in action!',
+  html: '<p>This is a test post. Check out some of the others to see syntax highlighting in action!</p>',
 }
 
 export const thisWeek: Post = {

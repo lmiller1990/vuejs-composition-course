@@ -12,7 +12,7 @@ jest.mock('axios', () => ({
 }))
 
 describe('ShowPost', () => {
-  it('does not render an edit link when no users is logged in', async () => {
+  it.only('does not render an edit link when no users is logged in', async () => {
     const store = createStore()
     const router = makeRouter()
     router.push('/posts/1')
@@ -28,6 +28,7 @@ describe('ShowPost', () => {
     })
 
     await flushPromises()
+    console.log(wrapper.html())
     expect(wrapper.find('[data-test="can-edit"]').exists()).toBe(false)
   })
 
