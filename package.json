@@ -5,7 +5,8 @@
   "license": "MIT",
   "scripts": {
     "test": "yarn jest",
-    "dev": "yarn webpack-dev-server"
+    "dev": "yarn webpack-dev-server",
+    "build": "yarn webpack --mode production"
   },
   "devDependencies": {
     "@babel/node": "^7.8.7",
@@ -18,9 +19,12 @@
     "@vue/compiler-sfc": "^3.0.0-beta.4",
     "@vue/test-utils": "^2.0.0-alpha.6",
     "babel-jest": "^25.2.6",
+    "clean-webpack-plugin": "^3.0.0",
     "css-loader": "^3.5.3",
     "flush-promises": "^1.0.2",
+    "identity-obj-proxy": "^3.0.0",
     "jest": "^25.2.7",
+    "raw-loader": "^4.0.1",
     "style-loader": "^1.2.1",
     "ts-jest": "^25.3.1",
     "ts-loader": "^6.2.2",
@@ -37,7 +41,7 @@
     "lodash": "^4.17.15",
     "marked": "^1.0.0",
     "moment": "^2.24.0",
-    "vue": "^3.0.0-beta.4",
-    "vue-router": "^4.0.0-alpha.9"
+    "vue": "^3.0.0-beta.15",
+    "vue-router": "^4.0.0-alpha.13"
   }
 }
