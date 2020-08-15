@@ -1,18 +1,18 @@
 <template>
   <nav class="navbar">
     <div class="navbar-end">
-      <div class="buttons" v-if="authenticated">
+      <div class="buttons" v-if="auth">
         <router-link class="button" to="/posts/new">New Post</router-link>
-        <button class="button" @click="">Sign out</button>
+        <button class="button" @click="">Signout</button>
       </div>
 
-      <div class="buttons" v-else>
-        <button class="button" @click="signin">Sign in</button>
+      <div class="buttons" v-if="!auth">
         <button class="button" @click="signup">Signup</button>
+        <button class="button" @click="signin">Signin</button>
       </div>
     </div>
     <teleport to="#modal" v-if="modal.visible">
-      <component :is="modal.component" />
+      <component :is="component" />
     </teleport>
   </nav>
 </template>
@@ -25,24 +25,25 @@ import { useStore } from './store'
 
 export default defineComponent({
   setup() {
-    const modal = useModal()
     const store = useStore()
+    const auth = computed(() => store.getState().authors.currentUserId)
+    const modal = useModal()
 
-    const authenticated = computed(() => store.getState().authors.currentUserId)
-    const signup = () => {
-      modal.component = markRaw(Signup)
+    const signin = () => {
       modal.showModal()
     }
-    const signin = () => {
-      // modal.component = markRaw(Signin)
+
+    const signup = () => {
       modal.showModal()
+      modal.component.value = markRaw(Signup)
     }
 
     return {
+      component: modal.component,
       modal,
-      authenticated,
+      auth,
       signup,
-      signin
+      signin,
     }
   }
 })
