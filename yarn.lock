@@ -2524,9 +2524,9 @@ cssstyle@^2.0.0:
     cssom "~0.3.6"
 
 csstype@^2.6.8:
-  version "2.6.10"
-  resolved "https://registry.yarnpkg.com/csstype/-/csstype-2.6.10.tgz#e63af50e66d7c266edb6b32909cfd0aabe03928b"
-  integrity sha512-D34BqZU4cIlMCY93rZHbrq9pjTAQJ3U8S8rfBqjwHxkGPThWFjzZDQpgMJY0QViLxth6ZKYiwFBo14RdN44U/w==
+  version "2.6.13"
+  resolved "https://registry.yarnpkg.com/csstype/-/csstype-2.6.13.tgz#a6893015b90e84dd6e85d0e3b442a1e84f2dbe0f"
+  integrity sha512-ul26pfSQTZW8dcOnD2iiJssfXw0gdNVX9IJDH/X3K5DGPfj+fUYe3kB+swUY6BF3oZDxaID3AJt+9/ojSAE05A==
 
 cyclist@^1.0.1:
   version "1.0.1"
@@ -7245,7 +7245,7 @@ vue-router@^4.0.0-alpha.13:
   resolved "https://registry.yarnpkg.com/vue-router/-/vue-router-4.0.0-alpha.13.tgz#f406150172f77e2f60f4ff73f644a156df2e0248"
   integrity sha512-yTcpRjjcelF14BzSX6uFlHZZAxMg30CQv7hoFDWvSWbUudaAaxMW0OkIgd771SXMLLXDbjfRi4Y4WfSAW4UJ/Q==
 
-vue@^3.0.0-beta.15:
+vue@3.0.0-beta.15:
   version "3.0.0-beta.15"
   resolved "https://registry.yarnpkg.com/vue/-/vue-3.0.0-beta.15.tgz#99f107534755d3a237b51fc1279c43af2fefde6e"
   integrity sha512-KTmvfNpkvD6mao8vloqjUMjrHEivS1HZvHmYeHPRHqU2HRvNcrZuwXYvETt3dGOTu0Oj7zAWQXP+uZ34CW75sw==
