@@ -49,7 +49,7 @@ class Store {
     this.state = reactive(initialState)
   }
 
-  public getState(): State {
+  public getState() {
     return readonly(this.state)
   }
 
