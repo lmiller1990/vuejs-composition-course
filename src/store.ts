@@ -37,7 +37,7 @@ const initialPostsState = (): PostsState => ({
   loaded: false
 })
 
-export const initialState = (): State => ({
+const initialState = (): State => ({
   authors: initialAuthorsState(),
   posts: initialPostsState()
 })
@@ -49,7 +49,7 @@ class Store {
     this.state = reactive(initialState)
   }
 
-  public getState(): State {
+  public getState() {
     return readonly(this.state)
   }
 
@@ -88,8 +88,8 @@ export const provideStore = () => {
   provide('store', store)
 }
 
-export const createStore = (init: State = initialState()) => {
-  return new Store(init)
+export const createStore = () => {
+  return new Store(initialState())
 }
 
 export const useStore = (): Store => {
