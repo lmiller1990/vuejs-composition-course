@@ -1166,17 +1166,6 @@
   dependencies:
     "@types/yargs-parser" "*"
 
-"@vue/compiler-core@3.0.0-beta.15":
-  version "3.0.0-beta.15"
-  resolved "https://registry.yarnpkg.com/@vue/compiler-core/-/compiler-core-3.0.0-beta.15.tgz#8710a8e3ba15ba1a8b62bd17609d26bd27fdcc45"
-  integrity sha512-NLNW7tAMHl8ybRgTPTIWLsi8aXHbFngY2x95eEHAdxhNasTY5NsgmQBBH9TBAUQEn6Wo8ybmuvQoNzgcw979Zg==
-  dependencies:
-    "@babel/parser" "^7.8.6"
-    "@babel/types" "^7.8.6"
-    "@vue/shared" "3.0.0-beta.15"
-    estree-walker "^0.8.1"
-    source-map "^0.6.1"
-
 "@vue/compiler-core@3.0.0-beta.4":
   version "3.0.0-beta.4"
   resolved "https://registry.yarnpkg.com/@vue/compiler-core/-/compiler-core-3.0.0-beta.4.tgz#25cb620f3b813c80c020bbffbf44dc1fa5cb3ad2"
@@ -1188,15 +1177,6 @@
     estree-walker "^0.8.1"
     source-map "^0.6.1"
 
-<<<<<<< HEAD
-"@vue/compiler-dom@3.0.0-beta.15":
-  version "3.0.0-beta.15"
-  resolved "https://registry.yarnpkg.com/@vue/compiler-dom/-/compiler-dom-3.0.0-beta.15.tgz#ee6dc9ae1dabb5c5c257d7cc20c5f3e95d5e5f4f"
-  integrity sha512-0qVaCosZ6XrkmlSOndGlNh33JQ2oao82uWxC/qw4QWBGm6a1DcKkZFIZFYLQWg5ZIcSrEQrR1VzUidBaZw9AIg==
-  dependencies:
-    "@vue/compiler-core" "3.0.0-beta.15"
-    "@vue/shared" "3.0.0-beta.15"
-=======
 "@vue/compiler-core@3.0.0-rc.5":
   version "3.0.0-rc.5"
   resolved "https://registry.yarnpkg.com/@vue/compiler-core/-/compiler-core-3.0.0-rc.5.tgz#dd4f1816fcae34a81bc60e584f97993cad284d54"
@@ -1207,7 +1187,6 @@
     "@vue/shared" "3.0.0-rc.5"
     estree-walker "^2.0.1"
     source-map "^0.6.1"
->>>>>>> 5.1-adding-users-to-the-store
 
 "@vue/compiler-dom@3.0.0-beta.4":
   version "3.0.0-beta.4"
@@ -1251,30 +1230,6 @@
     "@vue/compiler-dom" "3.0.0-beta.4"
     "@vue/shared" "3.0.0-beta.4"
 
-<<<<<<< HEAD
-"@vue/reactivity@3.0.0-beta.15":
-  version "3.0.0-beta.15"
-  resolved "https://registry.yarnpkg.com/@vue/reactivity/-/reactivity-3.0.0-beta.15.tgz#4ee0942783d7ff09acab5b8755706597ba6234f6"
-  integrity sha512-Xa0LG8RTNlPYsuqOBhhV03xKhMmuSU0vtKXoIi1yxp9gGU7ga/TMmnhELb66AiupiXdLJwRcdv00KhPF/2y0dA==
-  dependencies:
-    "@vue/shared" "3.0.0-beta.15"
-
-"@vue/runtime-core@3.0.0-beta.15":
-  version "3.0.0-beta.15"
-  resolved "https://registry.yarnpkg.com/@vue/runtime-core/-/runtime-core-3.0.0-beta.15.tgz#35c2ef61dadf07dfe9129dbea6fb8c1b88cc5bd6"
-  integrity sha512-jDkqSs1hsS9fRCgzah7VINafxWj7bYoDyweVuBqm6KPcHRfGkRZZxl2NltbbVaLH76Qvm4PPSnqGgEx7QtFSgg==
-  dependencies:
-    "@vue/reactivity" "3.0.0-beta.15"
-    "@vue/shared" "3.0.0-beta.15"
-
-"@vue/runtime-dom@3.0.0-beta.15":
-  version "3.0.0-beta.15"
-  resolved "https://registry.yarnpkg.com/@vue/runtime-dom/-/runtime-dom-3.0.0-beta.15.tgz#e3ce740c5e3766020719b174686bd65c75975c7e"
-  integrity sha512-161rUw1sWfbv51Ua8gKXaPc+seRJQcV+MLokTJtqYtNCajya0Mx6vdXJajBWqjDT8/Udx0sb7Wm/K/0DfGBUTw==
-  dependencies:
-    "@vue/runtime-core" "3.0.0-beta.15"
-    "@vue/shared" "3.0.0-beta.15"
-=======
 "@vue/reactivity@3.0.0-rc.5":
   version "3.0.0-rc.5"
   resolved "https://registry.yarnpkg.com/@vue/reactivity/-/reactivity-3.0.0-rc.5.tgz#45cff8d839d7ad130b1e499239090050fdecff13"
@@ -1297,13 +1252,7 @@
   dependencies:
     "@vue/runtime-core" "3.0.0-rc.5"
     "@vue/shared" "3.0.0-rc.5"
->>>>>>> 5.1-adding-users-to-the-store
     csstype "^2.6.8"
-
-"@vue/shared@3.0.0-beta.15":
-  version "3.0.0-beta.15"
-  resolved "https://registry.yarnpkg.com/@vue/shared/-/shared-3.0.0-beta.15.tgz#77444ab234e229c3fdcc9f394678e167a55757af"
-  integrity sha512-wViILT5GgxMtnXVQ1xupj43wvnZ41g3NLWaBObs7l+eTxz5vq5yx72qH6HRpsfhR2Mg39jE0cfNLFEpC4lJIUQ==
 
 "@vue/shared@3.0.0-beta.4":
   version "3.0.0-beta.4"
@@ -7325,16 +7274,6 @@ vue-router@^4.0.0-alpha.13:
   resolved "https://registry.yarnpkg.com/vue-router/-/vue-router-4.0.0-alpha.13.tgz#f406150172f77e2f60f4ff73f644a156df2e0248"
   integrity sha512-yTcpRjjcelF14BzSX6uFlHZZAxMg30CQv7hoFDWvSWbUudaAaxMW0OkIgd771SXMLLXDbjfRi4Y4WfSAW4UJ/Q==
 
-<<<<<<< HEAD
-vue@3.0.0-beta.15:
-  version "3.0.0-beta.15"
-  resolved "https://registry.yarnpkg.com/vue/-/vue-3.0.0-beta.15.tgz#99f107534755d3a237b51fc1279c43af2fefde6e"
-  integrity sha512-KTmvfNpkvD6mao8vloqjUMjrHEivS1HZvHmYeHPRHqU2HRvNcrZuwXYvETt3dGOTu0Oj7zAWQXP+uZ34CW75sw==
-  dependencies:
-    "@vue/compiler-dom" "3.0.0-beta.15"
-    "@vue/runtime-dom" "3.0.0-beta.15"
-    "@vue/shared" "3.0.0-beta.15"
-=======
 vue@^3.0.0-rc.5:
   version "3.0.0-rc.5"
   resolved "https://registry.yarnpkg.com/vue/-/vue-3.0.0-rc.5.tgz#973175d45a892b3bd23ef5de7faa4add9c66275f"
@@ -7343,7 +7282,6 @@ vue@^3.0.0-rc.5:
     "@vue/compiler-dom" "3.0.0-rc.5"
     "@vue/runtime-dom" "3.0.0-rc.5"
     "@vue/shared" "3.0.0-rc.5"
->>>>>>> 5.1-adding-users-to-the-store
 
 w3c-hr-time@^1.0.1:
   version "1.0.2"

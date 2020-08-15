@@ -41,11 +41,7 @@
     "lodash": "^4.17.15",
     "marked": "^1.0.0",
     "moment": "^2.24.0",
-<<<<<<< HEAD
-    "vue": "3.0.0-beta.15",
-=======
     "vue": "^3.0.0-rc.5",
->>>>>>> 5.1-adding-users-to-the-store
     "vue-router": "^4.0.0-alpha.13"
   }
 }
