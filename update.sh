@@ -6,7 +6,7 @@ for branch in $branches
 do
   git checkout $branch
   echo "-- Updating $branch --"
-  git checkout master -- index.d.ts index.html yarn.lock package.json webpack.config.js jest.config.js tsconfig.json
+  git checkout master -- yarn.lock package.json 
   git commit -m "update config files"
   break
   git push --set-upstream vuejs-composition-course $branch
