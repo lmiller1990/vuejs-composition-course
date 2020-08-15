@@ -12,7 +12,7 @@
       </div>
     </div>
     <teleport to="#modal" v-if="modal.visible">
-      <component :is="modal.component" />
+      <component :is="component" />
     </teleport>
   </nav>
 </template>
