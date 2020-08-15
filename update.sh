@@ -14,13 +14,11 @@ arr5=(5.0-authentication-and-optimization 5.0-complete 5.1-adding-users-to-the-s
 
 arr6=(6.1-editing-pots 6.1-styling-show-post 6.2-editing-posts 6.3-testing-in-isolation 6.4-test-stubs-components)
 
-for branch in ${arr5[@]}
+for branch in ${arr1[@]}
 do
   echo "-- Checking out $branch --"
   git checkout $branch
   echo "-- Updating $branch --"
-  git checkout master -- yarn.lock package.json 
-  git commit -m "update to rc5"
   git push 
   echo "-- Updated $branch --"
 done
