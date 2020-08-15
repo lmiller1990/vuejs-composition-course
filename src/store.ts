@@ -48,8 +48,8 @@ class Store {
   constructor(initialState: State) {
     this.state = reactive(initialState)
   }
-
-  public getState(): State {
+ 
+  public getState() {
     return readonly(this.state)
   }
 
