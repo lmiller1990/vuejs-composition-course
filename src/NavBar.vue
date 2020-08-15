@@ -12,7 +12,7 @@
       </div>
     </div>
     <teleport to="#modal" v-if="modal.visible">
-      <component :is="modal.component" />
+      <component :is="component" />
     </teleport>
   </nav>
 </template>
@@ -33,12 +33,12 @@ export default defineComponent({
 
     const authenticated = computed(() => store.getState().authors.currentUserId)
     const signup = () => {
-      modal.component = markRaw(Signup)
+      modal.component.value = markRaw(Signup)
       modal.showModal()
     }
 
     const signin = () => {
-      modal.component = markRaw(Signin)
+      modal.component.value = markRaw(Signin)
       modal.showModal()
     }
 
@@ -49,6 +49,8 @@ export default defineComponent({
 
     return {
       modal,
+      component: modal.component,
+      Signin,
       authenticated,
       signup,
       signOut,
