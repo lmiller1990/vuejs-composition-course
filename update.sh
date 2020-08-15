@@ -11,6 +11,6 @@ do
   echo "-- Updating $branch --"
   git checkout master -- yarn.lock package.json 
   git commit -m "update config files"
-  git push --set-upstream vuejs-composition-course $branch
+  git push $branch
   echo "-- Updated $branch --"
 done
