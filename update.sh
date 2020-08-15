@@ -10,7 +10,7 @@ do
   git checkout $branch
   echo "-- Updating $branch --"
   git checkout master -- yarn.lock package.json 
-  git commit -m "update config files"
+  git commit -m "update to rc5"
   git push $branch
   echo "-- Updated $branch --"
 done
