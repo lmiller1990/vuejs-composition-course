@@ -14,7 +14,7 @@ arr5=(5.0-authentication-and-optimization 5.0-complete 5.1-adding-users-to-the-s
 
 arr6=(6.1-editing-pots 6.1-styling-show-post 6.2-editing-posts 6.3-testing-in-isolation 6.4-test-stubs-components)
 
-for branch in ${arr2[@]}
+for branch in ${arr4[@]}
 do
   echo "-- Checking out $branch --"
   git checkout $branch
