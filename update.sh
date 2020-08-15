@@ -11,6 +11,6 @@ do
   echo "-- Updating $branch --"
   git checkout master -- yarn.lock package.json 
   git commit -m "update to rc5"
-  git push $branch
+  git push 
   echo "-- Updated $branch --"
 done
