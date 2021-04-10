@@ -8,6 +8,7 @@
   </div>
 
   <section class="section">
+    <img src="/assets/img.png">
     <div class="container">
       <div class="notification is-info">
         <p>
